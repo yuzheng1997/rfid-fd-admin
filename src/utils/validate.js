@@ -124,6 +124,32 @@ export function validatePhoneTwo(rule, value, callback) {
   }
 }
 
+export function validPhoneTwoValue(value) {
+  let ok = true
+  validatePhoneTwo(null, value, (e) => {
+    ok = !e
+  })
+  return ok
+}
+
+export function validUSCC(value) {
+  const codes = '0123456789ABCDEFGHJKLMNPQRTUWXY'
+  const weights = [1, 3, 9, 27, 19, 26, 16, 17, 20, 29, 25, 13, 8, 24, 10, 30, 28]
+  const code = String(value || '').trim().toUpperCase()
+  if (code.length !== 18) return false
+  for (let i = 0; i < 18; i++) {
+    if (codes.indexOf(code[i]) === -1) return false
+  }
+  let sum = 0
+  for (let i = 0; i < 17; i++) {
+    sum += codes.indexOf(code[i]) * weights[i]
+  }
+  let logicCheckCode = 31 - (sum % 31)
+  if (logicCheckCode === 31) logicCheckCode = 0
+  const checkChar = codes[logicCheckCode]
+  return code[17] === checkChar
+}
+
 /* 是否固话*/
 export function validateTelephone(rule, value, callback) {
   const reg = /0\d{2}-\d{7,8}/

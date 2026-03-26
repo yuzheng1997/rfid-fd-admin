@@ -53,11 +53,9 @@
 
 <script>
 import Background from '@/assets/images/background.jpeg'
-import axios from 'axios'
 import { registerOrg } from '@/api/register'
-
-const USCC_CODES = '0123456789ABCDEFGHJKLMNPQRTUWXY'
-const USCC_WEIGHTS = [1, 3, 9, 27, 19, 26, 16, 17, 20, 29, 25, 13, 8, 24, 10, 30, 28]
+import { getChinaGeoJSON, getProvinceGeoJSON, getCityCountiesGeoJSON } from '@/api/geojson'
+import { validatePhoneTwo, validUSCC } from '@/utils/validate'
 
 export default {
   name: 'Register',
@@ -67,7 +65,7 @@ export default {
         callback(new Error('统一社会信用代码不能为空'))
         return
       }
-      if (!this.isValidUSCC(value)) {
+      if (!validUSCC(value)) {
         callback(new Error('统一社会信用代码格式或校验位不正确'))
         return
       }
@@ -78,11 +76,7 @@ export default {
         callback(new Error('联系电话不能为空'))
         return
       }
-      if (!this.isValidPhone(value)) {
-        callback(new Error('请输入正确的联系电话'))
-        return
-      }
-      callback()
+      validatePhoneTwo(rule, value, callback)
     }
     return {
       Background,
@@ -120,11 +114,6 @@ export default {
     toLogin() {
       this.$router.push({ path: '/login' })
     },
-    async fetchJson(url) {
-      const res = await axios.get(url, { responseType: 'text', transformResponse: [d => d] })
-      const text = typeof res.data === 'string' ? res.data.replace(/^\uFEFF/, '') : ''
-      return text ? JSON.parse(text) : res.data
-    },
     onRegionChange() {
       const cascader = this.$refs.regionCascader
       const nodes = cascader && cascader.getCheckedNodes ? cascader.getCheckedNodes() : []
@@ -138,7 +127,7 @@ export default {
       try {
         const level = node.level
         if (level === 0) {
-          const data = await this.fetchJson('/china-geojson-master/china.json')
+          const data = await getChinaGeoJSON()
           const list = (data.features || []).map(f => ({
             code: String(f.properties.id),
             name: f.properties.name
@@ -148,7 +137,7 @@ export default {
         }
         const parent = node.data
         if (level === 1) {
-          const data = await this.fetchJson(`/china-geojson-master/geometryProvince/${parent.code}.json`)
+          const data = await getProvinceGeoJSON(parent.code)
           const list = (data.features || []).map(f => ({
             code: String(f.properties.id).padStart(4, '0') + '00',
             name: f.properties.name
@@ -157,7 +146,7 @@ export default {
           return
         }
         if (level === 2) {
-          const data = await this.fetchJson(`/china-geojson-master/geometryCouties/${parent.code}.json`)
+          const data = await getCityCountiesGeoJSON(parent.code)
           const list = (data.features || []).map(f => ({
             code: String(f.properties.id),
             name: f.properties.name,
@@ -170,28 +159,6 @@ export default {
       } catch (e) {
         resolve([])
       }
-    },
-    isValidPhone(value) {
-      const v = String(value).trim()
-      const mobile = /^1[3-9]\d{9}$/
-      const landline = /^0\d{2,3}-?\d{7,8}$/
-      const tel = /^\d{7,13}$/
-      return mobile.test(v) || landline.test(v) || tel.test(v)
-    },
-    isValidUSCC(value) {
-      const code = String(value).trim().toUpperCase()
-      if (code.length !== 18) return false
-      for (let i = 0; i < 18; i++) {
-        if (USCC_CODES.indexOf(code[i]) === -1) return false
-      }
-      let sum = 0
-      for (let i = 0; i < 17; i++) {
-        sum += USCC_CODES.indexOf(code[i]) * USCC_WEIGHTS[i]
-      }
-      let logicCheckCode = 31 - (sum % 31)
-      if (logicCheckCode === 31) logicCheckCode = 0
-      const checkChar = USCC_CODES[logicCheckCode]
-      return code[17] === checkChar
     },
     submit() {
       this.$refs.registerForm.validate(async valid => {

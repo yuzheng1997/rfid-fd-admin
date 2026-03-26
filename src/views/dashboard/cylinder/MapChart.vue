@@ -16,7 +16,7 @@
 import echarts from 'echarts'
 require('echarts/theme/macarons') // echarts theme
 import resize from '../mixins/resize'
-import axios from 'axios'
+import { fetchGeoJSON } from '@/api/geojson'
 
 export default {
   mixins: [resize],
@@ -76,9 +76,7 @@ export default {
     async loadAndRegisterMap(mapName, url) {
       if (this.registeredMaps.has(mapName)) return
       try {
-        const response = await axios.get(url, { responseType: 'text', transformResponse: [d => d] })
-        const text = typeof response.data === 'string' ? response.data.replace(/^\uFEFF/, '') : ''
-        const geoJson = text ? JSON.parse(text) : response.data
+        const geoJson = await fetchGeoJSON(url)
         echarts.registerMap(mapName, geoJson)
         this.registeredMaps.add(mapName)
       } catch (error) {
