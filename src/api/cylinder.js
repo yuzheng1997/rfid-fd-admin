@@ -23,5 +23,11 @@ export function edit(data) {
     data
   })
 }
+export function cylinderTrace(id) {
+  return request({
+    url: `/api/admin/cylinder/${id}`,
+    method: 'get'
+  })
+}
 
 export default { add, edit, del }

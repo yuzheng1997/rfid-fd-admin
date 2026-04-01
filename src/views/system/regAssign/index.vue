@@ -26,30 +26,21 @@
       width="600px"
     >
       <el-descriptions :column="1" border>
-        <el-descriptions-item label="机构类型">{{
-          detailData.orgType === "distributor" ? "分销商" : "加气站"
-        }}</el-descriptions-item>
-        <el-descriptions-item label="机构名称">{{
-          detailData.orgName
-        }}</el-descriptions-item>
-        <el-descriptions-item label="统一社会信用代码">{{
-          detailData.creditCode
-        }}</el-descriptions-item>
-        <el-descriptions-item label="联系人姓名">{{
-          detailData.contactName
-        }}</el-descriptions-item>
-        <el-descriptions-item label="联系电话">{{
-          detailData.contactPhone
-        }}</el-descriptions-item>
-        <el-descriptions-item label="省市区地址">{{
-          detailData.regionText
-        }}</el-descriptions-item>
-        <el-descriptions-item label="详细地址">{{
-          detailData.detailAddress
-        }}</el-descriptions-item>
-        <el-descriptions-item label="备注">{{
-          detailData.remark || "无"
-        }}</el-descriptions-item>
+        <el-descriptions-item label="企业类型">
+          <span v-if="detailData.typeDealer === 1">分销商</span>
+          <span v-else-if="detailData.typeFiller === 1">加气站</span>
+          <span v-else-if="detailData.typeInspection === 1">年检机构</span>
+          <span v-else-if="detailData.typeManufacturer === 1">制造商</span>
+          <span v-else>未知</span>
+        </el-descriptions-item>
+        <el-descriptions-item label="企业名称">{{ detailData.name }}</el-descriptions-item>
+        <el-descriptions-item label="统一社会信用代码">{{ detailData.code }}</el-descriptions-item>
+        <el-descriptions-item label="法定代表人">{{ detailData.legalName }}</el-descriptions-item>
+        <el-descriptions-item label="联系人姓名">{{ detailData.contact }}</el-descriptions-item>
+        <el-descriptions-item label="联系电话">{{ detailData.phone }}</el-descriptions-item>
+        <el-descriptions-item label="省市区地址">{{ detailData.province }} {{ detailData.city }} {{ detailData.district }}</el-descriptions-item>
+        <el-descriptions-item label="详细地址">{{ detailData.address }}</el-descriptions-item>
+        <el-descriptions-item label="状态">{{ detailData.status === 'ACTIVE' ? '正常' : '禁用/未分配' }}</el-descriptions-item>
         <el-descriptions-item label="关联账号">
           <el-select
             v-model="assignForm.userId"
@@ -87,10 +78,17 @@
       @selection-change="crud.selectionChangeHandler"
     >
       <el-table-column type="selection" width="55" />
-      <el-table-column prop="orgName" label="机构名" />
-      <el-table-column prop="creditCode" label="统一社会信用代码" />
-      <el-table-column prop="contactName" label="联系人" />
-      <el-table-column prop="contactPhone" label="联系人电话" />
+      <el-table-column prop="name" label="企业名称" />
+      <el-table-column prop="code" label="统一社会信用代码" />
+      <el-table-column prop="contact" label="联系人" />
+      <el-table-column prop="phone" label="联系电话" />
+      <el-table-column prop="status" label="状态" align="center">
+        <template slot-scope="scope">
+          <el-tag :type="scope.row.status === 'ACTIVE' ? 'success' : 'info'">
+            {{ scope.row.status === 'ACTIVE' ? '正常' : '禁用/未分配' }}
+          </el-tag>
+        </template>
+      </el-table-column>
       <el-table-column
         v-if="checkPer(['admin', 'reg:assign'])"
         label="操作"
@@ -124,9 +122,9 @@ export default {
   components: { pagination, crudOperation, rrOperation },
   cruds() {
     return CRUD({
-      title: '注册分配',
-      url: 'api/registrations',
-      crudMethod: { ...regAssignApi },
+      title: '分配账号',
+      url: 'api/admin/company/companyList',
+      method: 'post',
       optShow: {
         add: false,
         edit: false,
@@ -155,51 +153,11 @@ export default {
     }
   },
   mounted() {
-    // 模拟假数据用于测试
-    const mockData = [
-      {
-        id: 1,
-        orgType: 'distributor',
-        orgName: '朝阳气瓶配送中心',
-        creditCode: '91110105MA01X7Y89A',
-        contactName: '王大勇',
-        contactPhone: '13811223344',
-        regionText: '北京市朝阳区',
-        detailAddress: '大屯路100号',
-        remark: '优质合作伙伴'
-      },
-      {
-        id: 2,
-        orgType: 'station',
-        orgName: '海淀加气站第一分站',
-        creditCode: '91110108MA02Y8Z90B',
-        contactName: '李建国',
-        contactPhone: '13922334455',
-        regionText: '北京市海淀区',
-        detailAddress: '中关村东路20号',
-        remark: ''
-      }
-    ]
-    this.crud.data = mockData
-    this.crud.page.total = mockData.length
-    this.crud.loading = false
-    this.fetchUserOptions()
+    // 模拟假数据用于测试，按新的Company接口结构
+
   },
   methods: {
-    fetchUserOptions() {
-      // 实际开发中应调用后端接口，此处由于演示模拟一些账号
-      this.userOptions = [
-        { id: 1, username: 'admin', nickName: '系统管理员' },
-        { id: 2, username: 'operator01', nickName: '调度员01' },
-        { id: 3, username: 'station_user', nickName: '加气站主管' }
-      ]
-      // 尝试调用后端接口
-      /*
-      userApi.getUsers({ page: 0, size: 999 }).then(res => {
-        this.userOptions = res.content
-      })
-      */
-    },
+
     showAssign(row) {
       this.detailData = row
       this.assignForm.id = row.id

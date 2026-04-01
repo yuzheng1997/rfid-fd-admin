@@ -19,6 +19,8 @@ function CRUD(options) {
     title: '',
     // 请求数据的url
     url: '',
+    // 请求方法 (默认get)
+    method: 'get',
     // 表格数据
     data: [],
     // 选择项
@@ -129,7 +131,7 @@ function CRUD(options) {
       return new Promise((resolve, reject) => {
         crud.loading = true
         // 请求数据
-        initData(crud.url, crud.getQueryParams()).then(data => {
+        initData(crud.url, crud.getQueryParams(), crud.method).then(data => {
           const table = crud.getTable()
           if (table && table.lazy) { // 懒加载子节点数据，清掉已加载的数据
             table.store.states.treeData = {}
@@ -327,7 +329,7 @@ function CRUD(options) {
      */
     doExport() {
       crud.downloadLoading = true
-      download(crud.url + '/download', crud.getQueryParams()).then(result => {
+      download(crud.url + '/download', crud.getQueryParams(), crud.method).then(result => {
         downloadFile(result, crud.title + '数据', 'xlsx')
         crud.downloadLoading = false
       }).catch(() => {
@@ -348,6 +350,8 @@ function CRUD(options) {
       return {
         page: crud.page.page,
         size: crud.page.size,
+        pageAt: crud.page.page,
+        pageSize: crud.page.size,
         ...crud.query,
         ...crud.params
       }

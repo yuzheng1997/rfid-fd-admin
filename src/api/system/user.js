@@ -65,5 +65,12 @@ export function updateEmail(form) {
   })
 }
 
-export default { add, edit, del, resetPwd }
+export function bindCompany(targetUserId, targetCompanyId) {
+  return request({
+    url: `api/admin/bind/${targetUserId}/${targetCompanyId}`,
+    method: 'post'
+  })
+}
+
+export default { add, edit, del, resetPwd, bindCompany }
 

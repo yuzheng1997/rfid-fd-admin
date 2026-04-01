@@ -18,9 +18,8 @@ export function edit(data) {
 
 export function toggleStatus(data) {
   return request({
-    url: 'api/appUsers/toggleStatus',
-    method: 'post',
-    data
+    url: `api/admin/user/activate/${data.id}`,
+    method: 'post'
   })
 }
 
