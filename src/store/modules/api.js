@@ -6,6 +6,8 @@ const api = {
     deployUploadApi: baseUrl + '/api/deploy/upload',
     // SQL脚本上传
     databaseUploadApi: baseUrl + '/api/database/upload',
+    // 导入柱体
+    cylinderUploadApi: baseUrl + '/api/admin/cylinder/import',
     // 图片上传
     imagesUploadApi: baseUrl + '/api/localStorage/pictures',
     // 修改头像

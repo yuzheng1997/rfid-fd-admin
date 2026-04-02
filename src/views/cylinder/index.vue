@@ -33,7 +33,27 @@
 
         <rrOperation />
       </div>
-      <crudOperation :permission="permission" />
+      <crudOperation>
+        <el-upload
+          slot="right"
+          :action="cylinderUploadApi"
+          :headers="headers"
+          :show-file-list="false"
+          accept=".xlsx,.xls"
+          :on-success="handleSuccess"
+          class="upload-demo"
+        >
+          <el-button
+
+            class="filter-item"
+            size="mini"
+            type="primary"
+            icon="el-icon-upload2"
+          >导入
+          </el-button>
+        </el-upload>
+
+      </crudOperation>
     </div>
     <!-- 详情抽屉 -->
 
@@ -168,6 +188,8 @@ import CRUD, { crud, form, header, presenter } from '@crud/crud'
 import crudOperation from '@crud/CRUD.operation'
 import pagination from '@crud/Pagination'
 import rrOperation from '@crud/RR.operation'
+import { getToken } from '@/utils/auth'
+import { mapGetters } from 'vuex'
 
 const defaultForm = {
   id: null,
@@ -202,6 +224,9 @@ export default {
   dicts: ['cylinder_status', 'cylinder_type'],
   data() {
     return {
+      headers: {
+        Authorization: getToken()
+      },
       detailDrawer: false,
       activeTab: 'basic',
       detailData: {},
@@ -222,7 +247,9 @@ export default {
       }
     }
   },
-
+  computed: {
+    ...mapGetters(['cylinderUploadApi'])
+  },
   methods: {
     showDetail(row) {
       this.detailDrawer = true
@@ -234,6 +261,22 @@ export default {
       })
 
       // 模拟获取时间线
+    },
+    triggerUpload() {
+      this.$refs.uploadRef.click()
+    },
+    handleSuccess(res) {
+      if (res.code !== 200) {
+        return this.$message({
+          message: res.message,
+          type: 'error'
+        })
+      }
+      this.$message({
+        message: '导入成功',
+        type: 'success'
+      })
+      this.refresh()
     },
     // 钩子：在获取表格数据之前执行，如果有需要可以再此处理查询参数
     [CRUD.HOOK.beforeRefresh]() {

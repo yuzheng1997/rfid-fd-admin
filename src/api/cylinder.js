@@ -29,5 +29,12 @@ export function cylinderTrace(id) {
     method: 'get'
   })
 }
+export function importCylinder(data) {
+  return request({
+    url: `/api/admin/cylinder/import`,
+    method: 'post',
+    data: data
+  })
+}
 
 export default { add, edit, del }
