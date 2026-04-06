@@ -91,15 +91,15 @@ export default {
           data: data.map(i => i.name)
         },
         calculable: true,
+
         series: [
           {
+            top: 50,
+            bottom: 30,
             name: this.seriesName,
             type: 'pie',
-            roseType: 'radius',
             radius: [30, 110],
             center: ['50%', '45%'],
-            minAngle: 15, // 核心修改：确保即使是少量数据也能在图表中清晰可见
-            avoidLabelOverlap: true,
             label: {
               show: true,
               formatter: '{b}: {c} ({d}%)' // 展示具体数值和百分比，增加可读性

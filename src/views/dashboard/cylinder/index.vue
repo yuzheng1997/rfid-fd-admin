@@ -59,8 +59,7 @@ export default {
   data() {
     return {
       lineChartData: {
-        expectedData: [28500, 31000, 29800, 32500, 27400, 32500, 34000],
-        actualData: [26000, 30000, 28000, 31000, 26000, 30000, 32000]
+        expectedData: [28500, 31000, 29800, 32500, 27400, 32500, 34000]
       },
       pieChartData: [
         { value: 8420, name: '正常' },

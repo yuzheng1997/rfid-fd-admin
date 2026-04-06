@@ -13,16 +13,24 @@ export function fetchGeoJSON(url) {
 }
 
 export function getChinaGeoJSON() {
-  return fetchGeoJSON('/china-geojson-master/china.json')
+  return fetchGeoJSON('/map/china.json')
 }
 
 export function getProvinceGeoJSON(provinceId) {
-  return fetchGeoJSON(`/china-geojson-master/geometryProvince/${provinceId}.json`)
+  return fetchGeoJSON(`/map/citys/${provinceId}.json`)
 }
 
 export function getCityCountiesGeoJSON(cityId) {
-  return fetchGeoJSON(`/china-geojson-master/geometryCouties/${cityId}.json`)
+  return fetchGeoJSON(`/map/citys/${cityId}.json`)
 }
 
-export default { fetchGeoJSON, getChinaGeoJSON, getProvinceGeoJSON, getCityCountiesGeoJSON }
+export function fetchLocation() {
+  return fetchGeoJSON('/map/location.json')
+}
+
+export function fetchLocationSimplified() {
+  return fetchGeoJSON('/map/location-simplified.json')
+}
+
+export default { fetchGeoJSON, getChinaGeoJSON, getProvinceGeoJSON, getCityCountiesGeoJSON, fetchLocation, fetchLocationSimplified }
 
