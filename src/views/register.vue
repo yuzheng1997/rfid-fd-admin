@@ -43,6 +43,7 @@
           ref="regionCascader"
           v-model="form.regionCodes"
           :props="regionProps"
+          :data="regionOptions"
           clearable
           filterable
           style="width: 100%"
@@ -88,7 +89,7 @@
 
 <script>
 import Background from '@/assets/images/background.jpeg'
-import { getChinaGeoJSON, getProvinceGeoJSON, getCityCountiesGeoJSON } from '@/api/geojson'
+import { getRegionTree } from '@/api/system/region'
 import { registerCompany, listAllCompanies } from '@/api/company'
 import { validateIdNo, validatePhoneTwo, validUSCC } from '@/utils/validate'
 import { mapGetters } from 'vuex'
@@ -166,13 +167,12 @@ export default {
         address: [{ required: true, trigger: 'blur', message: '请输入详细地址' }]
       },
       regionProps: {
-        lazy: true,
-        value: 'code',
-        label: 'name',
-        leaf: 'leaf',
-        lazyLoad: (node, resolve) => this.loadRegion(node, resolve)
+        value: 'value',
+        label: 'label',
+        children: 'children',
+        checkStrictly: false
       },
-      parentOptions: [],
+      regionOptions: [],
       uploadFileList: {
         businessLicense: [],
         cylinderFillLicense: [],
@@ -183,6 +183,7 @@ export default {
   },
   mounted() {
     this.fetchParents()
+    this.fetchRegionData()
   },
   methods: {
     toLogin() {
@@ -215,51 +216,28 @@ export default {
       const cascader = this.$refs.regionCascader
       const nodes = cascader && cascader.getCheckedNodes ? cascader.getCheckedNodes() : []
       if (nodes && nodes.length > 0) {
-        const labels = nodes[0].pathLabels || []
-        this.form.province = labels[0] || ''
-        this.form.city = labels[1] || ''
-        this.form.district = labels[2] || ''
+        const node = nodes[0]
+        const pathLabels = node.pathLabels || []
+        this.form.province = pathLabels[0] || ''
+        this.form.city = pathLabels[1] || ''
+        this.form.district = pathLabels[2] || ''
+        // 如果需要保存地区代码，可以使用 path
+        // this.form.provinceCode = path[0]
+        // this.form.cityCode = path[1]
+        // this.form.districtCode = path[2]
       } else {
         this.form.province = ''
         this.form.city = ''
         this.form.district = ''
       }
     },
-    async loadRegion(node, resolve) {
+    async fetchRegionData() {
       try {
-        const level = node.level
-        if (level === 0) {
-          const data = await getChinaGeoJSON()
-          const list = (data.features || []).map(f => ({
-            code: String(f.properties.id),
-            name: f.properties.name
-          }))
-          resolve(list)
-          return
-        }
-        const parent = node.data
-        if (level === 1) {
-          const data = await getProvinceGeoJSON(parent.code)
-          const list = (data.features || []).map(f => ({
-            code: String(f.properties.id).padStart(4, '0') + '00',
-            name: f.properties.name
-          }))
-          resolve(list)
-          return
-        }
-        if (level === 2) {
-          const data = await getCityCountiesGeoJSON(parent.code)
-          const list = (data.features || []).map(f => ({
-            code: String(f.properties.id),
-            name: f.properties.name,
-            leaf: true
-          }))
-          resolve(list)
-          return
-        }
-        resolve([])
+        const res = await getRegionTree()
+        this.regionOptions = Array.isArray(res) ? res : (res && res.data) || []
       } catch (e) {
-        resolve([])
+        console.error('加载地区数据失败:', e)
+        this.regionOptions = []
       }
     },
     buildFilePath(res) {

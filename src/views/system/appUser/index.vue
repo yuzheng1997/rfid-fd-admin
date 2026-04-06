@@ -47,6 +47,19 @@
             </div>
             <el-button slot="reference" type="success" size="mini">激活</el-button>
           </el-popover>
+          <el-popover
+            v-if="scope.row.status === 'INACTIVE'"
+            :ref="scope.row.id"
+            placement="top"
+            width="180"
+          >
+            <p>确定重置密码吗？</p>
+            <div style="text-align: right; margin: 0">
+              <el-button size="mini" type="text" @click="$refs[scope.row.id].doClose()">取消</el-button>
+              <el-button :loading="toggleLoading" type="primary" size="mini" @click="handleToggle(scope.row)">确定</el-button>
+            </div>
+            <el-button slot="reference" type="primary" size="mini">重置</el-button>
+          </el-popover>
         </template>
       </el-table-column>
     </el-table>
