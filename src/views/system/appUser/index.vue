@@ -1,9 +1,7 @@
 <template>
   <div class="app-container">
-    <!--工具栏-->
     <div class="head-container">
       <div v-if="crud.props.searchToggle">
-        <!-- 搜索 -->
         <el-input
           v-model="query.blurry"
           clearable
@@ -17,12 +15,41 @@
       </div>
       <crudOperation :permission="permission" />
     </div>
-    <!--表格渲染-->
+    <el-dialog
+      append-to-body
+      :close-on-click-modal="false"
+      :visible.sync="roleDialogVisible"
+      title="分配角色"
+      width="500px"
+    >
+      <el-form ref="roleForm" :model="roleForm" size="small" label-width="80px">
+        <el-form-item label="账号">
+          <el-input v-model="roleForm.username" disabled style="width: 380px;" />
+        </el-form-item>
+        <el-form-item label="分配角色">
+          <el-select
+            v-model="roleForm.roleIds"
+            multiple
+            placeholder="请选择角色"
+            style="width: 380px;"
+          >
+            <el-option
+              v-for="item in roleList"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            />
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="text" @click="roleDialogVisible = false">取消</el-button>
+        <el-button :loading="bindRoleLoading" type="primary" @click="submitBindRoles">确认</el-button>
+      </div>
+    </el-dialog>
     <el-table ref="table" v-loading="crud.loading" :data="crud.data" style="width: 100%;" @selection-change="crud.selectionChangeHandler">
       <el-table-column type="selection" width="55" />
       <el-table-column prop="username" label="账号" />
-      <!-- <el-table-column prop="email" label="邮箱" />
-      <el-table-column prop="nickName" label="联系人" /> -->
       <el-table-column prop="phone" label="手机号" />
       <el-table-column label="账号状态" align="center">
         <template slot-scope="scope">
@@ -31,9 +58,8 @@
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="150px" align="center">
+      <el-table-column label="操作" width="300px" align="center">
         <template slot-scope="scope">
-          <!-- <el-tag type="success" size="mini">已激活</el-tag> -->
           <el-popover
             v-if="scope.row.status === 'INACTIVE'"
             :ref="scope.row.id"
@@ -60,16 +86,17 @@
             </div>
             <el-button slot="reference" type="primary" size="mini">重置</el-button>
           </el-popover>
+          <el-button type="warning" size="mini" icon="el-icon-setting" @click="handleAssignRole(scope.row)">分配角色</el-button>
         </template>
       </el-table-column>
     </el-table>
-    <!--分页组件-->
     <pagination />
   </div>
 </template>
 
 <script>
 import appUserApi from '@/api/system/appUser'
+import appRoleApi from '@/api/system/appRole'
 import CRUD, { presenter, header, crud } from '@crud/crud'
 import rrOperation from '@crud/RR.operation'
 import crudOperation from '@crud/CRUD.operation'
@@ -91,6 +118,14 @@ export default {
   data() {
     return {
       toggleLoading: false,
+      roleDialogVisible: false,
+      bindRoleLoading: false,
+      roleList: [],
+      roleForm: {
+        userId: null,
+        username: '',
+        roleIds: []
+      },
       permission: {
         add: ['admin', 'appUser:add'],
         edit: ['admin', 'appUser:edit'],
@@ -98,7 +133,9 @@ export default {
       }
     }
   },
-
+  created() {
+    this.loadRoleList()
+  },
   methods: {
     handleToggle(row) {
       this.toggleLoading = true
@@ -113,6 +150,36 @@ export default {
         row.status = 'ACTIVE'
       }).catch(() => {
         this.toggleLoading = false
+      })
+    },
+    loadRoleList() {
+      appRoleApi.getList({ page: 0, pageSize: 999 }).then(res => {
+        this.roleList = res.content || res.data || []
+      })
+    },
+    handleAssignRole(row) {
+      this.roleForm = {
+        userId: row.id,
+        username: row.username,
+        roleIds: []
+      }
+      this.roleDialogVisible = true
+    },
+    submitBindRoles() {
+      this.bindRoleLoading = true
+      appUserApi.bindRoles({
+        userId: this.roleForm.userId,
+        roleIds: this.roleForm.roleIds
+      }).then(() => {
+        this.$notify({
+          title: '分配成功',
+          type: 'success',
+          duration: 2500
+        })
+        this.roleDialogVisible = false
+        this.bindRoleLoading = false
+      }).catch(() => {
+        this.bindRoleLoading = false
       })
     }
   }

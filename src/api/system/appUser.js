@@ -23,4 +23,12 @@ export function toggleStatus(data) {
   })
 }
 
-export default { getAppUsers, edit, toggleStatus }
+export function bindRoles(data) {
+  return request({
+    url: 'api/admin/app-rbac/user/bind-roles',
+    method: 'post',
+    data
+  })
+}
+
+export default { getAppUsers, edit, toggleStatus, bindRoles }
