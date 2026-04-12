@@ -38,17 +38,14 @@
       <el-form-item label="联系人姓名" prop="contactName">
         <el-input v-model="form.contactName" placeholder="请输入联系人姓名" />
       </el-form-item>
-      <el-form-item label="省市区地址" prop="regionCodes">
-        <el-cascader
+      <el-form-item label="国家/省/市地址" prop="regionCodes">
+        <region-cascader
           ref="regionCascader"
           v-model="form.regionCodes"
-          :props="regionProps"
-          :data="regionOptions"
-          clearable
-          filterable
           style="width: 100%"
-          placeholder="请选择省/市/区"
-          @change="onRegionChange"
+          return-labels
+          placeholder="请选择国家/省/市"
+          @change-detail="onRegionChangeDetail"
         />
       </el-form-item>
       <el-form-item label="详细地址" prop="address">
@@ -89,39 +86,19 @@
 
 <script>
 import Background from '@/assets/images/background.jpeg'
-import { getRegionTree } from '@/api/system/region'
 import { registerCompany, listAllCompanies } from '@/api/company'
 import { validateIdNo, validatePhoneTwo, validUSCC } from '@/utils/validate'
 import { mapGetters } from 'vuex'
 import { getToken } from '@/utils/auth'
+import RegionCascader from '@/components/RegionCascader'
 
 export default {
   name: 'Register',
-  computed: {
-    ...mapGetters(['imagesUploadApi', 'baseApi']),
-    uploadHeaders() {
-      const token = getToken()
-      if (token) {
-        return { Authorization: token }
-      }
-      return {}
-    },
-    licenseFields() {
-      const base = [{ key: 'businessLicense', label: '营业执照', required: true }]
-      if (this.form.type === 'DISTRIBUTOR') {
-        return base.concat([{ key: 'dangerBusinessLicense', label: '危险化学品经营许可证', required: true }])
-      }
-      if (this.form.type === 'RETAILER') {
-        return base.concat([
-          { key: 'cylinderFillLicense', label: '气瓶充装许可证', required: true },
-          { key: 'specialEquipmentLicense', label: '特种设备使用许可证', required: true }
-        ])
-      }
-      return base
-    }
+  components: {
+    RegionCascader
   },
   data() {
-    const validateCreditCode = (rule, value, callback) => {
+    const validateCreditCode = (_rule, value, callback) => {
       if (!value) {
         callback(new Error('统一社会信用代码不能为空'))
         return
@@ -145,9 +122,12 @@ export default {
         contactName: '',
         contactPhone: '',
         regionCodes: [],
-        province: '',
+        country: '',
+        countryValue: '',
+        state: '',
+        stateValue: '',
         city: '',
-        district: '',
+        cityValue: '',
         address: '',
         remark: '',
         businessLicense: '123',
@@ -163,16 +143,9 @@ export default {
         legalCode: [{ validator: validateIdNo, trigger: 'blur' }],
         contactName: [{ required: true, trigger: 'blur', message: '请输入联系人姓名' }],
         contactPhone: [{ validator: validatePhoneTwo, trigger: 'blur' }],
-        regionCodes: [{ required: true, trigger: 'change', message: '请选择省市区地址' }],
+        regionCodes: [{ required: true, trigger: 'change', message: '请选择国家/省/市地址' }],
         address: [{ required: true, trigger: 'blur', message: '请输入详细地址' }]
       },
-      regionProps: {
-        value: 'value',
-        label: 'label',
-        children: 'children',
-        checkStrictly: false
-      },
-      regionOptions: [],
       uploadFileList: {
         businessLicense: [],
         cylinderFillLicense: [],
@@ -181,9 +154,31 @@ export default {
       }
     }
   },
+  computed: {
+    ...mapGetters(['imagesUploadApi', 'baseApi']),
+    uploadHeaders() {
+      const token = getToken()
+      if (token) {
+        return { Authorization: token }
+      }
+      return {}
+    },
+    licenseFields() {
+      const base = [{ key: 'businessLicense', label: '营业执照', required: true }]
+      if (this.form.type === 'DISTRIBUTOR') {
+        return base.concat([{ key: 'dangerBusinessLicense', label: '危险化学品经营许可证', required: true }])
+      }
+      if (this.form.type === 'RETAILER') {
+        return base.concat([
+          { key: 'cylinderFillLicense', label: '气瓶充装许可证', required: true },
+          { key: 'specialEquipmentLicense', label: '特种设备使用许可证', required: true }
+        ])
+      }
+      return base
+    }
+  },
   mounted() {
     this.fetchParents()
-    this.fetchRegionData()
   },
   methods: {
     toLogin() {
@@ -194,7 +189,7 @@ export default {
       const allKeys = ['businessLicense', 'cylinderFillLicense', 'dangerBusinessLicense', 'specialEquipmentLicense']
       allKeys.forEach(k => {
         if (allowed.indexOf(k) === -1) {
-          this.form[k] = ''
+          this.form[k] = '123'
           this.uploadFileList[k] = []
         }
       })
@@ -212,32 +207,21 @@ export default {
         this.parentOptions = []
       }
     },
-    onRegionChange() {
-      const cascader = this.$refs.regionCascader
-      const nodes = cascader && cascader.getCheckedNodes ? cascader.getCheckedNodes() : []
-      if (nodes && nodes.length > 0) {
-        const node = nodes[0]
-        const pathLabels = node.pathLabels || []
-        this.form.province = pathLabels[0] || ''
-        this.form.city = pathLabels[1] || ''
-        this.form.district = pathLabels[2] || ''
-        // 如果需要保存地区代码，可以使用 path
-        // this.form.provinceCode = path[0]
-        // this.form.cityCode = path[1]
-        // this.form.districtCode = path[2]
+    onRegionChangeDetail(detail) {
+      if (detail) {
+        this.form.country = (detail.country && detail.country.label) || ''
+        this.form.countryValue = (detail.country && detail.country.value) || ''
+        this.form.state = (detail.state && detail.state.label) || ''
+        this.form.stateValue = (detail.state && detail.state.value) || ''
+        this.form.city = (detail.city && detail.city.label) || ''
+        this.form.cityValue = (detail.city && detail.city.value) || ''
       } else {
-        this.form.province = ''
+        this.form.country = ''
+        this.form.countryValue = ''
+        this.form.state = ''
+        this.form.stateValue = ''
         this.form.city = ''
-        this.form.district = ''
-      }
-    },
-    async fetchRegionData() {
-      try {
-        const res = await getRegionTree()
-        this.regionOptions = Array.isArray(res) ? res : (res && res.data) || []
-      } catch (e) {
-        console.error('加载地区数据失败:', e)
-        this.regionOptions = []
+        this.form.cityValue = ''
       }
     },
     buildFilePath(res) {
@@ -288,9 +272,12 @@ export default {
           legalCode: this.form.legalCode,
           contactName: this.form.contactName,
           contactPhone: this.form.contactPhone,
-          province: this.form.province,
+          country: this.form.country,
+          countryValue: this.form.countryValue,
+          state: this.form.state,
+          stateValue: this.form.stateValue,
           city: this.form.city,
-          district: this.form.district,
+          cityValue: this.form.cityValue,
           address: this.form.address,
           remark: this.form.remark,
           businessLicense: this.form.businessLicense,

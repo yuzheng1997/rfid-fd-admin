@@ -1,6 +1,6 @@
 <template>
   <el-row :gutter="20" class="panel-group">
-    <!-- 第一行：气瓶状态指标 -->
+    <!-- 第一行：气瓶状态指标（所有角色可见） -->
     <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
       <div class="card-panel">
         <div class="card-panel-icon-wrapper icon-total">
@@ -8,7 +8,7 @@
         </div>
         <div class="card-panel-description">
           <div class="card-panel-text">气瓶总数</div>
-          <count-to :start-val="0" :end-val="12500" :duration="2600" class="card-panel-num" />
+          <count-to :start-val="0" :end-val="statistics.totalCount" :duration="2600" class="card-panel-num" />
         </div>
       </div>
     </el-col>
@@ -19,7 +19,7 @@
         </div>
         <div class="card-panel-description">
           <div class="card-panel-text">在库气瓶</div>
-          <count-to :start-val="0" :end-val="8420" :duration="3000" class="card-panel-num" />
+          <count-to :start-val="0" :end-val="statistics.inStockCount" :duration="3000" class="card-panel-num" />
         </div>
       </div>
     </el-col>
@@ -30,7 +30,7 @@
         </div>
         <div class="card-panel-description">
           <div class="card-panel-text">出库中气瓶</div>
-          <count-to :start-val="0" :end-val="3840" :duration="3200" class="card-panel-num" />
+          <count-to :start-val="0" :end-val="statistics.outboundCount" :duration="3200" class="card-panel-num" />
         </div>
       </div>
     </el-col>
@@ -41,54 +41,114 @@
         </div>
         <div class="card-panel-description">
           <div class="card-panel-text">故障气瓶</div>
-          <count-to :start-val="0" :end-val="240" :duration="3600" class="card-panel-num" />
+          <count-to :start-val="0" :end-val="statistics.faultyCount" :duration="3600" class="card-panel-num" />
         </div>
       </div>
     </el-col>
-
-    <!-- 第二行：加气统计指标 -->
-    <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
-      <div class="card-panel">
-        <div class="card-panel-icon-wrapper icon-history">
-          <svg-icon icon-class="chart" class-name="card-panel-icon" />
+    <template v-if="isRefueling">
+      <!-- 加气统计指标（仅充气商角色可见） -->
+      <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+        <div class="card-panel">
+          <div class="card-panel-icon-wrapper icon-history">
+            <svg-icon icon-class="chart" class-name="card-panel-icon" />
+          </div>
+          <div class="card-panel-description">
+            <div class="card-panel-text">历史加气总次数</div>
+            <count-to :start-val="0" :end-val="statistics.totalRefuelCount" :duration="2600" class="card-panel-num" />
+          </div>
         </div>
-        <div class="card-panel-description">
-          <div class="card-panel-text">历史加气总次数</div>
-          <count-to :start-val="0" :end-val="158000" :duration="2600" class="card-panel-num" />
+      </el-col>
+      <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+        <div class="card-panel">
+          <div class="card-panel-icon-wrapper icon-today">
+            <svg-icon icon-class="date" class-name="card-panel-icon" />
+          </div>
+          <div class="card-panel-description">
+            <div class="card-panel-text">当日加气次数</div>
+            <count-to :start-val="0" :end-val="statistics.todayRefuelCount" :duration="3000" class="card-panel-num" />
+          </div>
         </div>
-      </div>
-    </el-col>
-    <el-col :xs="12" :sm="12" :lg="8" class="card-panel-col">
-      <div class="card-panel">
-        <div class="card-panel-icon-wrapper icon-today">
-          <svg-icon icon-class="date" class-name="card-panel-icon" />
+      </el-col>
+      <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+        <div class="card-panel">
+          <div class="card-panel-icon-wrapper icon-month">
+            <svg-icon icon-class="log" class-name="card-panel-icon" />
+          </div>
+          <div class="card-panel-description">
+            <div class="card-panel-text">本月加气次数</div>
+            <count-to :start-val="0" :end-val="statistics.monthRefuelCount" :duration="3200" class="card-panel-num" />
+          </div>
         </div>
-        <div class="card-panel-description">
-          <div class="card-panel-text">当日加气次数</div>
-          <count-to :start-val="0" :end-val="1254" :duration="3000" class="card-panel-num" />
-        </div>
-      </div>
-    </el-col>
-    <el-col :xs="24" :sm="24" :lg="8" class="card-panel-col">
-      <div class="card-panel">
-        <div class="card-panel-icon-wrapper icon-month">
-          <svg-icon icon-class="log" class-name="card-panel-icon" />
-        </div>
-        <div class="card-panel-description">
-          <div class="card-panel-text">本月加气次数</div>
-          <count-to :start-val="0" :end-val="32500" :duration="3200" class="card-panel-num" />
-        </div>
-      </div>
-    </el-col>
+      </el-col>
+    </template>
   </el-row>
 </template>
 
 <script>
 import CountTo from 'vue-count-to'
+import { mapGetters } from 'vuex'
+// import { getStatistics } from '@/api/dashboard/index'
 
 export default {
   components: {
     CountTo
+  },
+  props: {
+    isRefueling: {
+      type: Boolean
+    }
+  },
+  data() {
+    return {
+      statistics: {
+        totalCount: 12500,
+        inStockCount: 8420,
+        outboundCount: 3840,
+        faultyCount: 240,
+        expirationAlertCount: 0,
+        totalRefuelCount: 158000,
+        todayRefuelCount: 1254,
+        monthRefuelCount: 32500
+      }
+    }
+  },
+  computed: {
+    ...mapGetters(['roles']),
+    userRole() {
+      if (this.roles.includes('ROLE_ADMIN')) return 'admin'
+      if (this.roles.includes('RETAILER')) return 'refueling'
+      if (this.roles.includes('DISTRIBUTOR')) return 'distributor'
+      return 'manufacturer' // Default
+    },
+    showRefuelingMetrics() {
+      // Show refueling metrics only for refueling stations and admins
+      return this.userRole === 'refueling' || this.userRole === 'admin'
+    }
+  },
+  mounted() {
+    this.loadStatistics()
+  },
+  methods: {
+    async loadStatistics() {
+      try {
+        // const res = await getStatistics()
+        // if (res.code === 200 && res.data) {
+        //   this.statistics = {
+        //     totalCount: res.data.totalCount || 0,
+        //     inStockCount: res.data.inStockCount || 0,
+        //     outboundCount: res.data.outboundCount || 0,
+        //     faultyCount: res.data.faultyCount || 0,
+        //     expirationAlertCount: res.data.expirationAlertCount || 0,
+        //     totalRefuelCount: res.data.totalRefuelCount || 0,
+        //     todayRefuelCount: res.data.todayRefuelCount || 0,
+        //     monthRefuelCount: res.data.monthRefuelCount || 0
+        //   }
+        // }
+      } catch (error) {
+        console.error('Failed to load statistics:', error)
+        // Keep using default values if API fails
+      }
+    }
   }
 }
 </script>
@@ -133,6 +193,10 @@ export default {
         background: #34bfa3;
       }
 
+      .icon-expiration {
+        background: #e6a23c;
+      }
+
       .icon-history {
         background: #7266ba;
       }
@@ -150,6 +214,7 @@ export default {
     .icon-in-stock { color: #36a3f7; }
     .icon-outbound { color: #f4516c; }
     .icon-fault { color: #34bfa3; }
+    .icon-expiration { color: #e6a23c; }
     .icon-history { color: #7266ba; }
     .icon-today { color: #f6d365; }
     .icon-month { color: #23b7e5; }

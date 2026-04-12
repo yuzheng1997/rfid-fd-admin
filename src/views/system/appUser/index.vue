@@ -53,15 +53,15 @@
       <el-table-column prop="phone" label="手机号" />
       <el-table-column label="账号状态" align="center">
         <template slot-scope="scope">
-          <el-tag :type="scope.row.status === 'ACTIVE' ? 'success' : 'danger'">
-            {{ scope.row.status === 'ACTIVE' ? '已激活' : '未激活' }}
+          <el-tag :type="scope.row.status === 'INACTIVE' ? 'success' : 'danger'">
+            {{ scope.row.status === 'INACTIVE' ? '已激活' : '未激活' }}
           </el-tag>
         </template>
       </el-table-column>
       <el-table-column label="操作" width="300px" align="center">
         <template slot-scope="scope">
           <el-popover
-            v-if="scope.row.status === 'INACTIVE'"
+            v-if="scope.row.status === 'ACTIVE'"
             :ref="scope.row.id"
             placement="top"
             width="180"
@@ -73,7 +73,7 @@
             </div>
             <el-button slot="reference" type="success" size="mini">激活</el-button>
           </el-popover>
-          <el-popover
+          <!-- <el-popover
             v-if="scope.row.status === 'INACTIVE'"
             :ref="scope.row.id"
             placement="top"
@@ -85,8 +85,8 @@
               <el-button :loading="toggleLoading" type="primary" size="mini" @click="handleToggle(scope.row)">确定</el-button>
             </div>
             <el-button slot="reference" type="primary" size="mini">重置</el-button>
-          </el-popover>
-          <el-button type="warning" size="mini" icon="el-icon-setting" @click="handleAssignRole(scope.row)">分配角色</el-button>
+          </el-popover> -->
+          <el-button v-if="scope.row.status === 'INACTIVE'" type="warning" size="mini" icon="el-icon-setting" @click="handleAssignRole(scope.row)">分配角色</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -147,7 +147,7 @@ export default {
         })
         this.$refs[row.id].doClose()
         this.toggleLoading = false
-        row.status = 'ACTIVE'
+        crud.refresh()
       }).catch(() => {
         this.toggleLoading = false
       })
@@ -178,6 +178,7 @@ export default {
         })
         this.roleDialogVisible = false
         this.bindRoleLoading = false
+        crud.refresh()
       }).catch(() => {
         this.bindRoleLoading = false
       })

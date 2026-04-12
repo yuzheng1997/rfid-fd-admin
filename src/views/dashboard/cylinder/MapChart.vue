@@ -1,101 +1,24 @@
 <template>
-  <div class="map-container">
-
-    <div ref="mapChart" :style="{height:height,width:width}" />
-    <el-button
-      v-if="mapStack.length > 1"
-      size="mini"
-      type="primary"
-      icon="el-icon-back"
-      class="back-btn"
-      @click="goBack"
-    >返回上级</el-button>
+  <div class="map-container" :style="{ height, width }">
+    <div ref="mapContainer" class="map-view" />
   </div>
 </template>
 
 <script>
-import echarts from 'echarts'
-import resize from '../mixins/resize'
-import { fetchGeoJSON, fetchLocationSimplified } from '@/api/geojson'
+import AMapLoader from '@amap/amap-jsapi-loader'
 
-// 模拟数据 - 使用 adcode 作为 key
-const mockData = {
-  // 中国省级数据
-  china: [
-    { adcode: '110000', value: 15000 },
-    { adcode: '120000', value: 8000 },
-    { adcode: '130000', value: 25000 },
-    { adcode: '140000', value: 12000 },
-    { adcode: '150000', value: 9000 },
-    { adcode: '210000', value: 11000 },
-    { adcode: '220000', value: 7000 },
-    { adcode: '230000', value: 8500 },
-    { adcode: '310000', value: 13000 },
-    { adcode: '320000', value: 28000 },
-    { adcode: '330000', value: 22000 },
-    { adcode: '340000', value: 14000 },
-    { adcode: '350000', value: 10000 },
-    { adcode: '360000', value: 9500 },
-    { adcode: '370000', value: 30000 },
-    { adcode: '410000', value: 26000 },
-    { adcode: '420000', value: 16000 },
-    { adcode: '430000', value: 15000 },
-    { adcode: '440000', value: 35000 },
-    { adcode: '450000', value: 11000 },
-    { adcode: '460000', value: 5000 },
-    { adcode: '500000', value: 12000 },
-    { adcode: '510000', value: 20000 },
-    { adcode: '520000', value: 8000 },
-    { adcode: '530000', value: 9000 },
-    { adcode: '540000', value: 2000 },
-    { adcode: '610000', value: 13000 },
-    { adcode: '620000', value: 6000 },
-    { adcode: '630000', value: 3000 },
-    { adcode: '640000', value: 4000 },
-    { adcode: '650000', value: 7000 },
-    { adcode: '710000', value: 0 },
-    { adcode: '810000', value: 0 },
-    { adcode: '820000', value: 0 }
-  ],
-  // 北京市级数据（区县）
-  '110000': [
-    { adcode: '110101', value: 1200 },
-    { adcode: '110102', value: 1100 },
-    { adcode: '110105', value: 2500 },
-    { adcode: '110106', value: 1800 },
-    { adcode: '110107', value: 800 },
-    { adcode: '110108', value: 2200 },
-    { adcode: '110109', value: 500 },
-    { adcode: '110111', value: 900 },
-    { adcode: '110112', value: 1500 },
-    { adcode: '110113', value: 1100 },
-    { adcode: '110114', value: 1400 },
-    { adcode: '110115', value: 1600 },
-    { adcode: '110116', value: 400 },
-    { adcode: '110117', value: 350 },
-    { adcode: '110118', value: 300 },
-    { adcode: '110119', value: 250 }
-  ],
-  // 河北省市级数据
-  '130000': [
-    { adcode: '130100', value: 3500 },
-    { adcode: '130200', value: 2800 },
-    { adcode: '130300', value: 1200 },
-    { adcode: '130400', value: 2200 },
-    { adcode: '130500', value: 1800 },
-    { adcode: '130600', value: 2500 },
-    { adcode: '130700', value: 1400 },
-    { adcode: '130800', value: 900 },
-    { adcode: '130900', value: 2000 },
-    { adcode: '131000', value: 1600 },
-    { adcode: '131100', value: 1100 }
-  ]
-}
+const DEFAULT_CENTER = [116.407387, 39.904179]
+const DEFAULT_ZOOM = 11
+const MOCK_POINT_LIST = [
+  { name: '北京朝阳站', lng: 116.473168, lat: 39.993015, count: 126, adcode: '110105' },
+  { name: '北京丰台站', lng: 116.286968, lat: 39.863642, count: 89, adcode: '110106' },
+  { name: '天津西青站', lng: 117.008994, lat: 39.141811, count: 73, adcode: '120111' },
+  { name: '石家庄长安站', lng: 114.54509, lat: 38.048958, count: 64, adcode: '130102' },
+  { name: '济南历下站', lng: 117.120497, lat: 36.651216, count: 97, adcode: '370102' }
+]
 
 export default {
-  mixins: [resize],
   props: {
-
     width: {
       type: String,
       default: '100%'
@@ -104,7 +27,6 @@ export default {
       type: String,
       default: '700px'
     },
-    // 外部传入的数据，格式: [{ name: '区域名', value: 数量 }]
     chartData: {
       type: Array,
       default: () => []
@@ -112,294 +34,240 @@ export default {
   },
   data() {
     return {
-      chart: null,
-      mapStack: [],
-      currentMapName: 'china',
-      registeredMaps: new Set(),
-      locationData: null
+      AMap: null,
+      map: null,
+      infoWindow: null,
+      markers: [],
+      loading: false,
+      errorMessage: '',
+      showEmpty: false
+    }
+  },
+  watch: {
+    chartData: {
+      deep: true,
+      handler() {
+        if (this.map) {
+          this.loadMapData()
+        }
+      }
     }
   },
   mounted() {
-    this.$nextTick(() => {
-      this.initChart()
-    })
+    this.initMap()
   },
   beforeDestroy() {
-    if (!this.chart) {
-      return
+    this.clearMarkers()
+    if (this.infoWindow) {
+      this.infoWindow.close()
+      this.infoWindow = null
     }
-    this.chart.dispose()
-    this.chart = null
+    if (this.map) {
+      this.map.destroy()
+      this.map = null
+    }
   },
   methods: {
-    convertData(data) {
-      // 从简化版 location 数据中直接获取各区域的中心点坐标
-      if (!this.locationData) return []
+    async initMap() {
+      const key = process.env.VUE_APP_AMAP_KEY
+      const securityJsCode = process.env.VUE_APP_AMAP_SECURITY_KEY
 
-      return data.map(item => {
-        const center = this.locationData[item.adcode]
-        if (center) {
-          return {
-            name: item.name,
-            value: [...center, item.value]
-          }
-        }
-      }).filter(Boolean)
-    },
-    async initChart() {
-      this.chart = echarts.init(this.$refs.mapChart, 'macarons')
-
-      // 获取简化版 location 数据（直接是 adcode -> center 的映射）
+      this.loading = true
+      this.errorMessage = ''
+      window._AMapSecurityConfig = {
+        securityJsCode: securityJsCode
+      }
       try {
-        this.locationData = await fetchLocationSimplified()
+        const AMap = await AMapLoader.load({
+          key,
+          version: '2.0'
+        })
+
+        this.AMap = AMap
+        this.map = new AMap.Map(this.$refs.mapContainer, {
+          // 设置地图容器id
+          viewMode: '2D', // 是否为3D地图模式
+          zoom: 11, // 初始化地图级别
+          center: [116.397428, 39.90923]
+        })
+        this.infoWindow = new AMap.InfoWindow({
+          offset: new AMap.Pixel(0, -24)
+        })
+        this.loadMapData()
       } catch (error) {
-        console.error('Failed to load location data:', error)
+        console.error('Failed to initialize AMap:', error)
+        this.errorMessage = '高德地图加载失败'
+      } finally {
+        this.loading = false
+      }
+    },
+    loadMapData() {
+      if (!this.map) {
+        return
       }
 
-      // 初始加载中国地图
-      await this.loadAndRegisterMap('china', '/map/china.json')
-      this.renderMap('china')
+      this.errorMessage = ''
+      this.showEmpty = false
 
-      // 点击下钻
-      this.chart.on('click', (params) => {
-        // geo 组件点击或 series map 点击
-        if (params.componentType === 'geo') {
-          // geo 组件点击，params.name 是区域名称
-          const adcode = this.getAdcodeByName(this.currentMapName, params.name)
-          if (adcode) {
-            this.drillDown(adcode, params.name)
-          }
-        } else if (params.componentType === 'series' && params.seriesType === 'map') {
-          const { adcode, name } = params.data
-          if (adcode) {
-            this.drillDown(adcode, name)
-          }
+      let pointList = this.normalizeDistributionData(this.chartData)
+      if (!pointList.length) {
+        pointList = MOCK_POINT_LIST
+      }
+      this.renderMarkers(pointList)
+    },
+    normalizeDistributionData(sourceData) {
+      const list = this.unwrapList(sourceData)
+
+      return list.map(item => {
+        const point = this.extractPoint(item)
+        const count = this.extractCount(item)
+        const name = item.name || item.regionName || item.areaName || item.cityName || item.provinceName || '未命名区域'
+
+        return {
+          name,
+          lng: point.lng,
+          lat: point.lat,
+          count,
+          adcode: item.adcode || item.code || ''
         }
-      })
+      }).filter(item => Number.isFinite(item.lng) && Number.isFinite(item.lat))
     },
-
-    async loadAndRegisterMap(mapName, url) {
-      if (this.registeredMaps.has(mapName)) return
-      try {
-        const geoJson = await fetchGeoJSON(url)
-        echarts.registerMap(mapName, geoJson)
-        this.registeredMaps.add(mapName)
-      } catch (error) {
-        console.error('Failed to load map data:', error)
-        this.$message.error('地图数据加载失败')
-      }
-    },
-
-    async drillDown(adcode, name) {
-      // adcode 为行政区划代码，6位数字字符串
-      // 省级: 后4位为0000，如 130000
-      // 市级: 后2位为00，如 130100
-      // 区县级: 完整6位，如 130102
-      const code = String(adcode)
-      let url = ''
-      const mapName = code
-
-      if (code.endsWith('0000')) {
-        // 省级下钻到市级
-        url = `/map/province/${code}.json`
-      } else if (code.endsWith('00')) {
-        // 市级下钻到县级
-        url = `/map/citys/${code}.json`
-      } else {
-        return // 区县级，不支持进一步下钻
+    unwrapList(sourceData) {
+      if (Array.isArray(sourceData)) {
+        return sourceData
       }
 
-      await this.loadAndRegisterMap(mapName, url)
-      this.renderMap(mapName)
-    },
+      if (!sourceData || typeof sourceData !== 'object') {
+        return []
+      }
 
-    goBack() {
-      if (this.mapStack.length > 1) {
-        this.mapStack.pop() // 弹出当前的
-        const prev = this.mapStack[this.mapStack.length - 1] // 获取上一个（不弹出）
-        this.renderMap(prev.mapName, false)
+      return sourceData.list || sourceData.items || sourceData.records || sourceData.content || sourceData.data || []
+    },
+    extractPoint(item) {
+      const lng = item.lng !== undefined ? item.lng : (item.lon !== undefined ? item.lon : item.longitude)
+      const lat = item.lat !== undefined ? item.lat : item.latitude
+
+      if (lng !== undefined && lat !== undefined) {
+        return {
+          lng: Number(lng),
+          lat: Number(lat)
+        }
+      }
+
+      if (Array.isArray(item.center) && item.center.length >= 2) {
+        return {
+          lng: Number(item.center[0]),
+          lat: Number(item.center[1])
+        }
+      }
+
+      if (Array.isArray(item.location) && item.location.length >= 2) {
+        return {
+          lng: Number(item.location[0]),
+          lat: Number(item.location[1])
+        }
+      }
+
+      if (typeof item.center === 'string') {
+        const [centerLng, centerLat] = item.center.split(',').map(Number)
+        return {
+          lng: centerLng,
+          lat: centerLat
+        }
+      }
+
+      return {
+        lng: NaN,
+        lat: NaN
       }
     },
-
-    renderMap(mapName, pushStack = true) {
-      if (pushStack) {
-        this.mapStack.push({ mapName })
+    extractCount(item) {
+      let count = item.cylinderCount
+      if (item.total !== undefined) {
+        count = item.total
       }
-      this.currentMapName = mapName
+      if (item.quantity !== undefined) {
+        count = item.quantity
+      }
+      if (item.value !== undefined) {
+        count = item.value
+      }
+      if (item.count !== undefined) {
+        count = item.count
+      }
+      return Number(count) || 0
+    },
+    getMarkerLevelClass(count) {
+      if (count >= 100) {
+        return 'is-high'
+      }
+      if (count >= 70) {
+        return 'is-medium'
+      }
+      return 'is-low'
+    },
+    renderMarkers(pointList) {
+      this.clearMarkers()
 
-      const data = this.getMapData(mapName)
-      const maxValue = data.length > 0 ? Math.max(...data.map(d => d.value || 0)) : 100
-      const minValue = data.length > 0 ? Math.min(...data.map(d => d.value || 0)) : 0
+      if (!pointList.length) {
+        this.showEmpty = true
+        this.map.setZoomAndCenter(DEFAULT_ZOOM, DEFAULT_CENTER)
+        return
+      }
 
-      // 气泡大小配置
-      const maxSize4Pin = 80
-      const minSize4Pin = 30
-
-      const option = {
-        title: {
-          text: '气瓶地理分布',
-          left: 'center',
-          top: 20
-        },
-        tooltip: {
-          trigger: 'item',
-          formatter: function(params) {
-            if (params.data) {
-              let value = params.data.value
-              // scatter 的 value 是 [lng, lat, 气瓶数量] 数组
-              if (params.seriesType === 'scatter' && Array.isArray(value)) {
-                value = value[2] // 取第三个元素（气瓶数量）
-              }
-              return `${params.name}<br/>气瓶数量: ${value || 0}`
-            }
-            return params.name
+      this.markers = pointList.map(item => {
+        const marker = new this.AMap.Marker({
+          position: [item.lng, item.lat],
+          anchor: 'bottom-center',
+          offset: new this.AMap.Pixel(0, 0),
+          label: {
+            direction: 'top',
+            offset: new this.AMap.Pixel(0, -8),
+            content: this.createMarkerLabelContent(item)
           }
-        },
-        visualMap: {
-          min: 0,
-          max: maxValue,
-          left: 'left',
-          top: 'bottom',
-          text: ['高', '低'],
-          calculable: true,
-          seriesIndex: [0],
-          inRange: {
-            color: ['#E0F3DB', '#7FCDBB', '#41B6C4', '#2C7FB8', '#253494']
+        })
+
+        marker.on('click', () => {
+          if (!this.infoWindow) {
+            return
           }
-        },
-        geo: {
-          show: true,
-          map: mapName,
-          roam: true
+          this.infoWindow.setContent(this.createInfoWindowContent(item))
+          this.infoWindow.open(this.map, [item.lng, item.lat])
+        })
 
-        },
-        series: [
-          {
-            type: 'map',
-            map: mapName,
-            geoIndex: 0,
-            aspectScale: 0.75, // 长宽比
-            showLegendSymbol: false, // 存在legend时显示
-            data: data,
-            label: {
-              normal: {
-                show: true
-              },
-              emphasis: {
-                show: false,
-                textStyle: {
-                  color: '#fff'
-                }
-              }
-            },
-            roam: true,
-            itemStyle: {
-              normal: {
-                areaColor: '#031525',
-                borderColor: '#3B5077'
-              },
-              emphasis: {
-                areaColor: '#2B91B7'
-              }
-            }
-          },
-          {
-            symbolSize: 10,
-            label: {
-              normal: {
-                formatter: '{b}',
-                position: 'left',
-                color: '#fff',
-                show: true
-              },
-              emphasis: {
-                show: true
-              }
-            },
-            itemStyle: {
-              normal: {
-                color: '#fff',
-                borderColor: '#fff',
-                borderWidth: 4
-              },
-              emphasis: {
-                color: '#fff',
-                borderColor: '#fff',
-                borderWidth: 4
-              }
-            },
-            name: 'light',
-            type: 'scatter',
-            coordinateSystem: 'geo',
-            data: this.convertData(data)
-          },
-          {
-            name: '点',
-            type: 'scatter',
-            coordinateSystem: 'geo',
-            symbol: 'pin',
-            symbolSize: function(val) {
-              const a = (maxSize4Pin - minSize4Pin) / (maxValue - minValue)
-              const b = minSize4Pin - a * minValue
-              return a * val[2] + b
-            },
-            itemStyle: {
-              normal: {
-                color: '#F62157' // 标志颜色
-              }
-            },
-            label: {
-              normal: {
-                formatter: function(obj) {
-                  return obj.data.value[2]
-                },
-                show: true,
-                textStyle: {
-                  color: '#fff',
-                  fontSize: 9
-                }
-              }
-            },
-            zlevel: 6,
-            data: this.convertData(data)
-          }
-        ]
-      }
-      this.chart.setOption(option, true)
-    },
-
-    getMapData(mapName) {
-      // 从 registeredMap 的 features 中提取 adcode 和 name
-      const map = echarts.getMap(mapName)
-      if (!map) return []
-
-      // 获取数据源：优先使用外部数据，其次使用模拟数据
-      const dataSource = this.chartData.length > 0 ? this.chartData : (mockData[mapName] || mockData.china)
-
-      // 创建 adcode 到数据的映射
-      const dataMap = {}
-      dataSource.forEach(item => {
-        dataMap[item.adcode] = item.value
+        return marker
       })
 
-      // 合并地图数据
-      return map.geoJson.features.map(f => ({
-        name: f.properties.name,
-        adcode: f.properties.adcode,
-        value: dataMap[f.properties.adcode] || 0
-      }))
+      this.map.add(this.markers)
+      this.map.setFitView(this.markers, false, [60, 60, 60, 60])
     },
-
-    getAdcodeByName(mapName, name) {
-      const map = echarts.getMap(mapName)
-      if (!map) return null
-      const feature = map.geoJson.features.find(f => f.properties.name === name)
-      return feature ? feature.properties.adcode : null
+    createMarkerLabelContent(item) {
+      const levelClass = this.getMarkerLevelClass(item.count)
+      return `
+        <div class="cylinder-marker-label ${levelClass}">
+          <div class="cylinder-marker-label__halo"></div>
+          <div class="cylinder-marker-label__dot"></div>
+          <div class="cylinder-marker-label__stem"></div>
+          <div class="cylinder-marker-label__card">
+            <div class="cylinder-marker-label__count">${item.count}</div>
+            <div class="cylinder-marker-label__name">${item.name}</div>
+          </div>
+        </div>
+      `
     },
-
-    // 刷新图表数据（供外部调用）
-    refreshData() {
-      this.renderMap(this.currentMapName, false)
+    createInfoWindowContent(item) {
+      return `
+        <div class="map-info-window">
+          <div class="map-info-window__title">${item.name}</div>
+          <div class="map-info-window__value">气瓶数量：${item.count}</div>
+        </div>
+      `
+    },
+    clearMarkers() {
+      if (this.markers.length && this.map) {
+        this.map.remove(this.markers)
+      }
+      this.markers = []
     }
   }
 }
@@ -408,10 +276,172 @@ export default {
 <style scoped>
 .map-container {
   position: relative;
+  min-height: 320px;
+  background: #fff;
+  overflow: hidden;
 }
-.back-btn {
+
+.map-view {
+  width: 100%;
+  height: 100%;
+}
+
+.map-mask {
   position: absolute;
-  top: 20px;
-  left: 20px;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.88);
+  color: #606266;
+  font-size: 14px;
+  z-index: 10;
+}
+
+.map-empty-tip {
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
+  padding: 6px 12px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  color: #606266;
+  font-size: 12px;
+  z-index: 10;
+}
+
+.map-info-window {
+  min-width: 140px;
+  line-height: 1.6;
+}
+
+.map-info-window__title {
+  font-weight: 600;
+  color: #303133;
+  margin-bottom: 4px;
+}
+
+.map-info-window__value {
+  color: #606266;
+}
+</style>
+
+<style>
+.cylinder-marker-label {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: auto;
+  transform: translateY(-6px);
+}
+
+.cylinder-marker-label__halo {
+  position: absolute;
+  bottom: -2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(73, 194, 255, 0.42) 0%, rgba(73, 194, 255, 0.16) 48%, rgba(73, 194, 255, 0) 74%);
+  animation: cylinder-marker-breath 3.2s ease-in-out infinite;
+}
+
+.cylinder-marker-label__dot {
+  position: relative;
+  z-index: 2;
+  width: 10px;
+  height: 10px;
+  border: 2px solid rgba(255, 255, 255, 0.96);
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6fe7ff 0%, #4ca7ff 100%);
+  box-shadow: 0 0 0 4px rgba(88, 184, 255, 0.16), 0 6px 16px rgba(30, 124, 189, 0.28);
+}
+
+.cylinder-marker-label__stem {
+  width: 1px;
+  height: 12px;
+  background: linear-gradient(180deg, rgba(120, 205, 255, 0.88) 0%, rgba(120, 205, 255, 0.18) 100%);
+}
+
+.cylinder-marker-label__card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 72px;
+  max-width: 144px;
+  padding: 10px 14px 9px;
+  border: 1px solid rgba(125, 206, 255, 0.24);
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(9, 24, 42, 0.92) 0%, rgba(13, 30, 52, 0.84) 100%);
+  box-shadow: 0 12px 30px rgba(8, 22, 40, 0.22);
+  backdrop-filter: blur(8px);
+  transition: transform 0.24s ease, border-color 0.24s ease, box-shadow 0.24s ease;
+}
+
+.cylinder-marker-label:hover .cylinder-marker-label__card {
+  transform: translateY(-2px);
+  border-color: rgba(125, 206, 255, 0.38);
+  box-shadow: 0 16px 32px rgba(8, 22, 40, 0.28);
+}
+
+.cylinder-marker-label__count {
+  color: #f5fbff;
+  font-size: 18px;
+  line-height: 1;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.cylinder-marker-label__name {
+  max-width: 116px;
+  margin-top: 6px;
+  color: rgba(214, 235, 248, 0.78);
+  font-size: 12px;
+  line-height: 1.2;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cylinder-marker-label.is-low .cylinder-marker-label__halo {
+  opacity: 0.72;
+}
+
+.cylinder-marker-label.is-medium .cylinder-marker-label__halo {
+  opacity: 0.9;
+}
+
+.cylinder-marker-label.is-medium .cylinder-marker-label__card {
+  border-color: rgba(111, 231, 255, 0.28);
+}
+
+.cylinder-marker-label.is-high .cylinder-marker-label__halo {
+  width: 22px;
+  height: 22px;
+  opacity: 1;
+}
+
+.cylinder-marker-label.is-high .cylinder-marker-label__dot {
+  box-shadow: 0 0 0 5px rgba(88, 184, 255, 0.18), 0 8px 18px rgba(30, 124, 189, 0.34);
+}
+
+.cylinder-marker-label.is-high .cylinder-marker-label__card {
+  border-color: rgba(111, 231, 255, 0.36);
+  box-shadow: 0 14px 34px rgba(8, 22, 40, 0.28);
+}
+
+@keyframes cylinder-marker-breath {
+  0%,
+  100% {
+    transform: scale(0.92);
+    opacity: 0.42;
+  }
+  50% {
+    transform: scale(1.18);
+    opacity: 0.72;
+  }
 }
 </style>

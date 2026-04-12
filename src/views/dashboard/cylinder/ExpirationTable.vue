@@ -1,9 +1,10 @@
+
 <template>
-  <el-card class="box-card" shadow="never">
+  <el-card class="box-card" style="height:400px" shadow="never">
     <div slot="header" class="clearfix">
       <span style="font-weight: bold; color: #f56c6c;">即将过期提醒 (年检/报废)</span>
     </div>
-    <el-table :data="list" size="small" style="width: 100%">
+    <el-table :data="list" pagination size="small" style="width: 100%">
       <el-table-column prop="serialNumber" label="气瓶编号" width="120" />
       <el-table-column prop="type" label="类型" width="80">
         <template slot-scope="scope">
@@ -20,11 +21,11 @@
           </span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="80">
+      <!-- <el-table-column label="操作" width="80">
         <template slot-scope="scope">
           <el-button type="text" size="mini" @click="handleAction(scope.row)">处理</el-button>
         </template>
-      </el-table-column>
+      </el-table-column> -->
     </el-table>
   </el-card>
 </template>
@@ -51,7 +52,5 @@ export default {
 </script>
 
 <style scoped>
-.box-card {
-  margin-bottom: 20px;
-}
+
 </style>
