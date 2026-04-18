@@ -40,3 +40,28 @@ export function getExpirationAlerts() {
   })
 }
 
+// Get status pie chart data
+export function statusPie() {
+  return request({
+    url: 'api/admin/dashboard/charts/status-pie',
+    method: 'get'
+  })
+}
+
+// Get indicator cards data
+export function getIndicatorCards() {
+  return request({
+    url: 'api/admin/dashboard/cards',
+    method: 'get'
+  })
+}
+
+// Get scan record page data
+export function scanRecordPage(params) {
+  return request({
+    url: 'api/admin/scan-record/page',
+    method: 'get',
+    params
+  })
+}
+

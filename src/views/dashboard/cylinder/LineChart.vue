@@ -1,11 +1,16 @@
 <template>
-  <div :class="className" :style="{height:height,width:width}" />
+  <div class="box-card" shadow="never">
+    <div class="clearfix">
+      <span style="font-weight: bold; color: #f56c6c;">加气趋势</span>
+    </div>
+    <div ref="chartRef" class="chart-wrapper" />
+  </div>
 </template>
 
 <script>
 import echarts from 'echarts'
 require('echarts/theme/macarons') // echarts theme
-import resize from './mixins/resize'
+import resize from '../mixins/resize'
 import { trendFill } from '@/api/dashboard/index'
 
 export default {
@@ -15,26 +20,19 @@ export default {
       type: String,
       default: 'chart'
     },
-    width: {
-      type: String,
-      default: '100%'
-    },
-    height: {
-      type: String,
-      default: '100%'
-    },
+
     autoResize: {
       type: Boolean,
       default: true
-    },
-    chartData: {
-      type: Object,
-      required: true
     }
   },
   data() {
     return {
-      chart: null
+      chart: null,
+      chartData: {
+        data: [],
+        xData: []
+      }
     }
   },
 
@@ -65,8 +63,10 @@ export default {
   },
   methods: {
     initChart() {
-      this.chart = echarts.init(this.$el, 'macarons')
-      this.setOptions(this.chartData)
+      this.chart = echarts.init(this.$refs.chartRef, 'macarons')
+      if (this.chartData.data && this.chartData.data.length > 0) {
+        this.setOptions(this.chartData)
+      }
     },
     setOptions({ data, xData } = {}) {
       this.chart.setOption({
@@ -112,3 +112,21 @@ export default {
   }
 }
 </script>
+<style lang="scss">
+.box-card {
+  height: 100%;
+  display: flex;
+  background: #fff;
+  flex-direction: column;
+  .clearfix {
+    padding: 0 20px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #f0f2f5;
+  }
+  .chart-wrapper {
+    flex: 1;
+  }
+}
+</style>

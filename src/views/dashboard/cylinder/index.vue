@@ -28,7 +28,7 @@
         </el-col>
         <el-col :xs="24" :sm="24" :lg="8">
           <div class="chart-wrapper">
-            <expiration-table />
+            <scan-record-table />
           </div>
         </el-col>
       </el-row>
@@ -38,10 +38,10 @@
 </template>
 
 <script>
-import PieChart from '../PieChart.vue'
+import PieChart from './PieChart.vue'
 import { mapGetters } from 'vuex'
-import LineChart from '../LineChart'
-import ExpirationTable from './ExpirationTable'
+import LineChart from './LineChart'
+import ScanRecordTable from './ScanRecordTable'
 import MapChart from './MapChart'
 import PanelGroup from './PanelGroup'
 
@@ -51,7 +51,7 @@ export default {
     PanelGroup,
     LineChart,
     PieChart,
-    ExpirationTable,
+    ScanRecordTable,
     MapChart
   },
   data() {

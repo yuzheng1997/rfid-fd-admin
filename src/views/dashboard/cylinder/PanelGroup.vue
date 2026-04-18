@@ -29,8 +29,8 @@
           <svg-icon icon-class="deploy" class-name="card-panel-icon" />
         </div>
         <div class="card-panel-description">
-          <div class="card-panel-text">出库中气瓶</div>
-          <count-to :start-val="0" :end-val="statistics.outboundCount" :duration="3200" class="card-panel-num" />
+          <div class="card-panel-text">出库/流转中</div>
+          <count-to :start-val="0" :end-val="statistics.flowingCount" :duration="3200" class="card-panel-num" />
         </div>
       </div>
     </el-col>
@@ -40,11 +40,12 @@
           <svg-icon icon-class="error" class-name="card-panel-icon" />
         </div>
         <div class="card-panel-description">
-          <div class="card-panel-text">故障气瓶</div>
-          <count-to :start-val="0" :end-val="statistics.faultyCount" :duration="3600" class="card-panel-num" />
+          <div class="card-panel-text">故障/待检</div>
+          <count-to :start-val="0" :end-val="statistics.brokenCount" :duration="3600" class="card-panel-num" />
         </div>
       </div>
     </el-col>
+
     <template v-if="isRefueling">
       <!-- 加气统计指标（仅充气商角色可见） -->
       <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
@@ -54,7 +55,7 @@
           </div>
           <div class="card-panel-description">
             <div class="card-panel-text">历史加气总次数</div>
-            <count-to :start-val="0" :end-val="statistics.totalRefuelCount" :duration="2600" class="card-panel-num" />
+            <count-to :start-val="0" :end-val="statistics.totalFillCount" :duration="2600" class="card-panel-num" />
           </div>
         </div>
       </el-col>
@@ -65,7 +66,7 @@
           </div>
           <div class="card-panel-description">
             <div class="card-panel-text">当日加气次数</div>
-            <count-to :start-val="0" :end-val="statistics.todayRefuelCount" :duration="3000" class="card-panel-num" />
+            <count-to :start-val="0" :end-val="statistics.todayFillCount" :duration="3000" class="card-panel-num" />
           </div>
         </div>
       </el-col>
@@ -76,7 +77,7 @@
           </div>
           <div class="card-panel-description">
             <div class="card-panel-text">本月加气次数</div>
-            <count-to :start-val="0" :end-val="statistics.monthRefuelCount" :duration="3200" class="card-panel-num" />
+            <count-to :start-val="0" :end-val="statistics.monthFillCount" :duration="3200" class="card-panel-num" />
           </div>
         </div>
       </el-col>
@@ -87,7 +88,7 @@
 <script>
 import CountTo from 'vue-count-to'
 import { mapGetters } from 'vuex'
-// import { getStatistics } from '@/api/dashboard/index'
+import { getIndicatorCards } from '@/api/dashboard/index'
 
 export default {
   components: {
@@ -101,14 +102,16 @@ export default {
   data() {
     return {
       statistics: {
-        totalCount: 12500,
-        inStockCount: 8420,
-        outboundCount: 3840,
-        faultyCount: 240,
-        expirationAlertCount: 0,
-        totalRefuelCount: 158000,
-        todayRefuelCount: 1254,
-        monthRefuelCount: 32500
+        totalCount: 0,
+        inStockCount: 0,
+        flowingCount: 0,
+        brokenCount: 0,
+        expiringCount: 0,
+        criticalOverdueCount: 0,
+        sleepingCount: 0,
+        totalFillCount: 0,
+        todayFillCount: 0,
+        monthFillCount: 0
       }
     }
   },
@@ -131,19 +134,21 @@ export default {
   methods: {
     async loadStatistics() {
       try {
-        // const res = await getStatistics()
-        // if (res.code === 200 && res.data) {
-        //   this.statistics = {
-        //     totalCount: res.data.totalCount || 0,
-        //     inStockCount: res.data.inStockCount || 0,
-        //     outboundCount: res.data.outboundCount || 0,
-        //     faultyCount: res.data.faultyCount || 0,
-        //     expirationAlertCount: res.data.expirationAlertCount || 0,
-        //     totalRefuelCount: res.data.totalRefuelCount || 0,
-        //     todayRefuelCount: res.data.todayRefuelCount || 0,
-        //     monthRefuelCount: res.data.monthRefuelCount || 0
-        //   }
-        // }
+        const res = await getIndicatorCards()
+        if (res && res.data) {
+          this.statistics = {
+            totalCount: res.data.totalCount || 0,
+            inStockCount: res.data.inStockCount || 0,
+            flowingCount: res.data.flowingCount || 0,
+            brokenCount: res.data.brokenCount || 0,
+            expiringCount: res.data.expiringCount || 0,
+            criticalOverdueCount: res.data.criticalOverdueCount || 0,
+            sleepingCount: res.data.sleepingCount || 0,
+            totalFillCount: res.data.totalFillCount || 0,
+            todayFillCount: res.data.todayFillCount || 0,
+            monthFillCount: res.data.monthFillCount || 0
+          }
+        }
       } catch (error) {
         console.error('Failed to load statistics:', error)
         // Keep using default values if API fails

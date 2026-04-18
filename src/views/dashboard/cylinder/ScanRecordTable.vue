@@ -20,11 +20,6 @@
             {{ formatDate(scope.row.scanTime) }}
           </template>
         </el-table-column>
-        <!-- <el-table-column label="操作" width="80">
-          <template slot-scope="scope">
-            <el-button type="text" size="mini" @click="handleDetail(scope.row)">查看</el-button>
-          </template>
-        </el-table-column> -->
       </el-table>
     </div>
   </div>
@@ -79,9 +74,6 @@ export default {
       if (!dateStr) return '-'
       const date = new Date(dateStr)
       return date.toLocaleString()
-    },
-    handleDetail(row) {
-      this.$message.info('查看操作记录详情: ' + row.cylinderCode)
     }
   }
 }

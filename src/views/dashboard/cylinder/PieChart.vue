@@ -1,13 +1,19 @@
 <template>
-  <div :class="className" :style="{height:height,width:width}" />
+
+  <div class="box-card" shadow="never">
+    <div class="clearfix">
+      <span style="font-weight: bold; color: #f56c6c;">气瓶状态分布</span>
+    </div>
+    <div ref="chartRef" class="chart-wrapper" />
+  </div>
 </template>
 
 <script>
 import echarts from 'echarts'
 require('echarts/theme/macarons') // echarts theme
 
-import resize from './mixins/resize'
-import { trendFill } from '@/api/dashboard/index'
+import resize from '../mixins/resize'
+import { statusPie } from '@/api/dashboard/index'
 
 export default {
   mixins: [resize],
@@ -31,41 +37,19 @@ export default {
     seriesName: {
       type: String,
       default: ''
-    },
-    data: {
-      type: Array,
-      default: () => [
-        { value: 320, name: 'Industries' },
-        { value: 240, name: 'Technology' },
-        { value: 149, name: 'Forex' },
-        { value: 100, name: 'Gold' },
-        { value: 59, name: 'Forecasts' }
-      ]
     }
   },
   data() {
     return {
-      chart: null
-    }
-  },
-  watch: {
-    data: {
-      deep: true,
-      handler(val) {
-        this.setOptions(val)
-      }
+      chart: null,
+      chartData: []
     }
   },
   mounted() {
-    trendFill().then(res => {
+    statusPie().then(res => {
       if (res) {
-        const data = []
-        const xData = []
-        ;(res).forEach(element => {
-          data.push(element.value)
-          xData.push(element.date)
-        })
-        this.setOptions({ data, xData })
+        this.chartData = res
+        this.setOptions(res)
       }
     }).catch(() => {
       console.log('获取数据失败')
@@ -83,15 +67,11 @@ export default {
   },
   methods: {
     initChart() {
-      this.chart = echarts.init(this.$el, 'macarons')
-      this.setOptions(this.data)
+      this.chart = echarts.init(this.$refs.chartRef, 'macarons')
+      this.setOptions(this.chartData)
     },
     setOptions(data) {
       this.chart.setOption({
-        title: {
-          text: this.title,
-          left: 'center'
-        },
         tooltip: {
           trigger: 'item',
           formatter: '{a} <br/>{b} : {c} ({d}%)'
@@ -105,12 +85,10 @@ export default {
 
         series: [
           {
-            top: 50,
-            bottom: 30,
+
             name: this.seriesName,
             type: 'pie',
             radius: [30, 110],
-            center: ['50%', '45%'],
             label: {
               show: true,
               formatter: '{b}: {c} ({d}%)' // 展示具体数值和百分比，增加可读性
@@ -137,3 +115,22 @@ export default {
   }
 }
 </script>
+<style lang="scss">
+.box-card {
+  height: 100%;
+  display: flex;
+  background: #fff;
+  flex-direction: column;
+  .clearfix {
+    padding: 0 20px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #f0f2f5;
+  }
+  .chart-wrapper {
+    flex: 1;
+    height: 100%;
+  }
+}
+</style>
