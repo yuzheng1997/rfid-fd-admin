@@ -79,7 +79,7 @@
           <span>{{ parseTime(scope.row.nextInspectionDate, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column v-if="checkPer(['admin','cylinder:edit','cylinder:del'])" label="操作" width="150px" align="center">
+      <el-table-column label="操作" width="150px" align="center">
         <template slot-scope="scope">
           <el-button size="mini" type="text" @click="showDetail(scope.row)">查看详情</el-button>
         </template>
@@ -150,13 +150,13 @@
             </el-card>
           </el-tab-pane>
 
-          <el-tab-pane label="操作记录" name="history">
+          <!-- <el-tab-pane label="操作记录" name="history">
             <el-table :data="historyList" size="small" border style="width: 100%">
               <el-table-column prop="manufactureDate" label="操作时间" width="160" />
               <el-table-column prop="operator" label="操作人" width="100" />
               <el-table-column prop="operation" label="操作内容" />
             </el-table>
-          </el-tab-pane>
+          </el-tab-pane> -->
 
           <el-tab-pane label="状态变更" name="timeline">
             <div style="padding: 20px">
