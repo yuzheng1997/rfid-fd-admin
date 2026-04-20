@@ -123,55 +123,14 @@ export default {
       this.renderMarkers()
     },
     normalizeDistributionData(sourceData) {
-      const list = this.unwrapList(sourceData)
-      return list.map(item => {
-        const point = this.extractPoint(item)
-        const count = this.extractCount(item)
-        const name = item.name || item.regionName || item.areaName || item.cityName || item.provinceName || '未命名区域'
-
-        return {
-          name,
-          lng: point.lng,
-          lat: point.lat,
-          count,
-          adcode: item.adcode || item.code || ''
-        }
-      }).filter(item => Number.isFinite(item.lng) && Number.isFinite(item.lat))
-    },
-    unwrapList(sourceData) {
-      if (Array.isArray(sourceData)) {
-        return sourceData
-      }
-      if (!sourceData || typeof sourceData !== 'object') {
-        return []
-      }
-      return sourceData.list || sourceData.items || sourceData.records || sourceData.content || sourceData.data || []
-    },
-    extractPoint(item) {
-      const lng = item.lng !== undefined ? item.lng : (item.lon !== undefined ? item.lon : item.longitude)
-      const lat = item.lat !== undefined ? item.lat : item.latitude
-
-      if (lng !== undefined && lat !== undefined) {
-        return { lng: Number(lng), lat: Number(lat) }
-      }
-
-      if (Array.isArray(item.center) && item.center.length >= 2) {
-        return { lng: Number(item.center[0]), lat: Number(item.center[1]) }
-      }
-
-      if (Array.isArray(item.location) && item.location.length >= 2) {
-        return { lng: Number(item.location[0]), lat: Number(item.location[1]) }
-      }
-
-      return { lng: NaN, lat: NaN }
-    },
-    extractCount(item) {
-      let count = item.cylinderCount
-      if (item.total !== undefined) count = item.total
-      if (item.quantity !== undefined) count = item.quantity
-      if (item.value !== undefined) count = item.value
-      if (item.count !== undefined) count = item.count
-      return Number(count) || 0
+      const list = Array.isArray(sourceData) ? sourceData : []
+      return list.map(item => ({
+        name: item.name || '未命名企业',
+        lng: Number(item.lng),
+        lat: Number(item.lat),
+        count: Number(item.value) || 0,
+        code: item.code || ''
+      })).filter(item => Number.isFinite(item.lng) && Number.isFinite(item.lat))
     },
     renderMarkers() {
       this.clearMarkers()

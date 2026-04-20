@@ -263,6 +263,31 @@ export default {
         //   }
         // }
         this.loading = true
+        let longitude = ''
+        let latitude = ''
+        const address = (this.form.state || '') + (this.form.city || '') + (this.form.address || '')
+        const key = process.env.VUE_APP_AMAP_KEY
+        let geocoded = false
+        for (let attempt = 1; attempt <= 3; attempt++) {
+          try {
+            const res = await fetch(`https://restapi.amap.com/v3/geocode/geo?address=${encodeURIComponent(address)}&key=${key}`)
+            const data = await res.json()
+            if (data.geocodes && data.geocodes.length > 0) {
+              const location = data.geocodes[0].location.split(',')
+              longitude = location[0]
+              latitude = location[1]
+              geocoded = true
+              break
+            }
+          } catch (e) {
+            console.warn(`地理编码第${attempt}次请求失败`, e)
+          }
+        }
+        if (!geocoded) {
+          this.$message.error('获取地理位置错误，请联系管理员')
+          this.loading = false
+          return
+        }
         const payload = {
           type: this.form.type,
           name: this.form.name,
@@ -283,7 +308,9 @@ export default {
           businessLicense: this.form.businessLicense,
           cylinderFillLicense: this.form.cylinderFillLicense,
           dangerBusinessLicense: this.form.dangerBusinessLicense,
-          specialEquipmentLicense: this.form.specialEquipmentLicense
+          specialEquipmentLicense: this.form.specialEquipmentLicense,
+          longitude,
+          latitude
         }
         try {
           await registerCompany(payload)
