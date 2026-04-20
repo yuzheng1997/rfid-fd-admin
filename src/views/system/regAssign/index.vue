@@ -5,10 +5,10 @@
       <div v-if="crud.props.searchToggle">
         <!-- 搜索 -->
         <el-input
-          v-model="query.blurry"
+          v-model="query.name"
           clearable
           size="small"
-          placeholder="输入机构名或代码搜索"
+          placeholder="输入机构名搜索"
           style="width: 200px;"
           class="filter-item"
           @keyup.enter.native="crud.toQuery"
@@ -40,8 +40,9 @@
         <el-descriptions-item label="联系电话">{{ detailData.phone }}</el-descriptions-item>
         <el-descriptions-item label="省市区地址">{{ detailData.province }} {{ detailData.city }} {{ detailData.district }}</el-descriptions-item>
         <el-descriptions-item label="详细地址">{{ detailData.address }}</el-descriptions-item>
-        <el-descriptions-item label="状态">{{ detailData.status === 'ACTIVE' ? '正常' : '禁用/未分配' }}</el-descriptions-item>
-        <el-descriptions-item label="关联账号">
+        <el-descriptions-item label="创建时间">{{ detailData.createTime }}</el-descriptions-item>
+        <!-- <el-descriptions-item label="状态">{{ detailData.status === 'ACTIVE' ? '正常' : '禁用/未分配' }}</el-descriptions-item> -->
+        <!-- <el-descriptions-item label="关联账号">
           <el-select
             v-model="assignForm.userId"
             placeholder="请选择关联账号"
@@ -59,16 +60,16 @@
             />
           </el-select>
         </el-descriptions-item>
-      </el-descriptions>
-      <div slot="footer" class="dialog-footer">
-        <el-button type="text" @click="detailDialog = false">取消</el-button>
-        <el-button
+      </el-descriptions> -->
+        <div slot="footer" class="dialog-footer">
+          <el-button type="text" @click="detailDialog = false">关闭</el-button>
+        <!-- <el-button
           :loading="assignLoading"
           type="primary"
           @click="confirmAssign"
-        >确定关联</el-button>
-      </div>
-    </el-dialog>
+        >确定关联</el-button> -->
+        </div>
+      </el-descriptions></el-dialog>
     <!--表格渲染-->
     <el-table
       ref="table"
@@ -79,17 +80,18 @@
     >
       <el-table-column type="selection" width="55" />
       <el-table-column prop="name" label="企业名称" />
-      <el-table-column prop="code" label="统一社会信用代码" />
-      <el-table-column prop="contact" label="联系人" />
-      <el-table-column prop="phone" label="联系电话" />
-      <el-table-column prop="status" label="状态" align="center">
+      <el-table-column prop="creditCode" label="统一社会信用代码" />
+      <el-table-column prop="address" label="详细地址" />
+      <el-table-column label="企业类型">
         <template slot-scope="scope">
-          <el-tag :type="scope.row.status === 'ACTIVE' ? 'success' : 'info'">
-            {{ scope.row.status === 'ACTIVE' ? '正常' : '禁用/未分配' }}
-          </el-tag>
+          <span v-if="scope.row.typeDealer === 1">分销商</span>
+          <span v-else-if="scope.row.typeFiller === 1">加气站</span>
+          <span v-else-if="scope.row.typeInspection === 1">年检机构</span>
+          <span v-else-if="scope.row.typeManufacturer === 1">制造商</span>
+          <span v-else>未知</span>
         </template>
       </el-table-column>
-      <el-table-column
+      <!-- <el-table-column
         v-if="checkPer(['admin', 'reg:assign'])"
         label="操作"
         width="120px"
@@ -103,7 +105,7 @@
             @click="showAssign(scope.row)"
           >分配</el-button>
         </template>
-      </el-table-column>
+      </el-table-column> -->
     </el-table>
     <!--分页组件-->
     <pagination />
@@ -111,7 +113,7 @@
 </template>
 
 <script>
-import regAssignApi from '@/api/system/regAssign'
+// import regAssignApi from '@/api/system/regAssign'
 import CRUD, { presenter, header, crud } from '@crud/crud'
 import rrOperation from '@crud/RR.operation'
 import crudOperation from '@crud/CRUD.operation'
@@ -163,29 +165,29 @@ export default {
       this.assignForm.id = row.id
       this.assignForm.userId = null
       this.detailDialog = true
-    },
-    confirmAssign() {
-      if (!this.assignForm.userId) {
-        this.$message.warning('请选择要关联的账号')
-        return
-      }
-      this.assignLoading = true
-      regAssignApi
-        .assignAccount(this.assignForm)
-        .then((res) => {
-          this.$notify({
-            title: '关联成功',
-            type: 'success',
-            duration: 2500
-          })
-          this.detailDialog = false
-          this.assignLoading = false
-          this.crud.refresh()
-        })
-        .catch(() => {
-          this.assignLoading = false
-        })
     }
+    // confirmAssign() {
+    //   if (!this.assignForm.userId) {
+    //     this.$message.warning('请选择要关联的账号')
+    //     return
+    //   }
+    //   this.assignLoading = true
+    //   regAssignApi
+    //     .assignAccount(this.assignForm)
+    //     .then((res) => {
+    //       this.$notify({
+    //         title: '关联成功',
+    //         type: 'success',
+    //         duration: 2500
+    //       })
+    //       this.detailDialog = false
+    //       this.assignLoading = false
+    //       this.crud.refresh()
+    //     })
+    //     .catch(() => {
+    //       this.assignLoading = false
+    //     })
+    // }
   }
 }
 </script>

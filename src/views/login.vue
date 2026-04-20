@@ -49,7 +49,6 @@ import { encrypt } from '@/utils/rsaEncrypt'
 import Config from '@/settings'
 import { getCodeImg } from '@/api/login'
 import Cookies from 'js-cookie'
-import qs from 'qs'
 import Background from '@/assets/images/background.jpeg'
 export default {
   name: 'Login',
@@ -70,23 +69,7 @@ export default {
         password: [{ required: true, trigger: 'blur', message: '密码不能为空' }],
         code: [{ required: true, trigger: 'change', message: '验证码不能为空' }]
       },
-      loading: false,
-      redirect: undefined
-    }
-  },
-  watch: {
-    $route: {
-      handler: function(route) {
-        const data = route.query
-        if (data && data.redirect) {
-          this.redirect = data.redirect
-          delete data.redirect
-          if (JSON.stringify(data) !== '{}') {
-            this.redirect = this.redirect + '&' + qs.stringify(data, { indices: false })
-          }
-        }
-      },
-      immediate: true
+      loading: false
     }
   },
   created() {
@@ -143,7 +126,7 @@ export default {
           }
           this.$store.dispatch('Login', user).then(() => {
             this.loading = false
-            this.$router.push({ path: this.redirect || '/' })
+            this.$router.push({ path: '/' })
           }).catch(() => {
             this.loading = false
             this.getCode()

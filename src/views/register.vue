@@ -265,12 +265,14 @@ export default {
         this.loading = true
         let longitude = ''
         let latitude = ''
-        const address = (this.form.state || '') + (this.form.city || '') + (this.form.address || '')
-        const key = process.env.VUE_APP_AMAP_KEY
+        const fullAddress = (this.form.state || '') + (this.form.city || '') + (this.form.address || '')
+        const shortAddress = (this.form.state || '') + (this.form.city || '')
+        const key = process.env.VUE_APP_AMAP_WEB_KEY
         let geocoded = false
         for (let attempt = 1; attempt <= 3; attempt++) {
           try {
-            const res = await fetch(`https://restapi.amap.com/v3/geocode/geo?address=${encodeURIComponent(address)}&key=${key}`)
+            const addr = attempt === 1 ? fullAddress : shortAddress
+            const res = await fetch(`https://restapi.amap.com/v3/geocode/geo?address=${encodeURIComponent(addr)}&key=${key}`)
             const data = await res.json()
             if (data.geocodes && data.geocodes.length > 0) {
               const location = data.geocodes[0].location.split(',')
