@@ -15,7 +15,7 @@
         </el-col>
       </el-row>
 
-      <el-row v-if="isRefueling" style="display: flex;" :gutter="20">
+      <el-row v-if="isRefueling" style="display: flex;height: 350px;" :gutter="20">
         <el-col :xs="24" :sm="24" :lg="8">
           <div class="chart-wrapper">
             <line-chart />

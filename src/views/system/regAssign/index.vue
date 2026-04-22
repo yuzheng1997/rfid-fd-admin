@@ -76,9 +76,8 @@
       v-loading="crud.loading"
       :data="crud.data"
       style="width: 100%;"
-      @selection-change="crud.selectionChangeHandler"
     >
-      <el-table-column type="selection" width="55" />
+      <!-- <el-table-column type="selection" width="55" /> -->
       <el-table-column prop="name" label="企业名称" />
       <el-table-column prop="creditCode" label="统一社会信用代码" />
       <el-table-column prop="address" label="详细地址" />

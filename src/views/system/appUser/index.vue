@@ -3,7 +3,7 @@
     <div class="head-container">
       <div v-if="crud.props.searchToggle">
         <el-input
-          v-model="query.blurry"
+          v-model="query.username"
           clearable
           size="small"
           placeholder="输入账号、邮箱或手机号搜索"
@@ -28,8 +28,7 @@
         </el-form-item>
         <el-form-item label="分配角色">
           <el-select
-            v-model="roleForm.roleIds"
-            multiple
+            v-model="roleForm.roleId"
             placeholder="请选择角色"
             style="width: 380px;"
           >
@@ -124,7 +123,7 @@ export default {
       roleForm: {
         userId: null,
         username: '',
-        roleIds: []
+        roleId: null
       },
       permission: {
         add: ['admin', 'appUser:add'],
@@ -147,7 +146,7 @@ export default {
         })
         this.$refs[row.id].doClose()
         this.toggleLoading = false
-        crud.refresh()
+        this.crud.refresh()
       }).catch(() => {
         this.toggleLoading = false
       })
@@ -161,7 +160,7 @@ export default {
       this.roleForm = {
         userId: row.id,
         username: row.username,
-        roleIds: []
+        roleId: row.roleId || null
       }
       this.roleDialogVisible = true
     },
@@ -169,7 +168,7 @@ export default {
       this.bindRoleLoading = true
       appUserApi.bindRoles({
         userId: this.roleForm.userId,
-        roleIds: this.roleForm.roleIds
+        roleIds: [this.roleForm.roleId]
       }).then(() => {
         this.$notify({
           title: '分配成功',
@@ -178,7 +177,7 @@ export default {
         })
         this.roleDialogVisible = false
         this.bindRoleLoading = false
-        crud.refresh()
+        this.crud.refresh()
       }).catch(() => {
         this.bindRoleLoading = false
       })

@@ -13,8 +13,7 @@
         />
         <rrOperation />
       </div>
-      <!-- <crudOperation :permission="permission" /> -->
-      <crudOperation />
+      <crudOperation :permission="permission" />
     </div>
     <el-dialog
       append-to-body
@@ -49,10 +48,14 @@
         <el-button :loading="crud.status.cu === 2" type="primary" @click="crud.submitCU">确认</el-button>
       </div>
     </el-dialog>
-    <el-table ref="table" v-loading="crud.loading" :data="crud.data" style="width: 100%;" @selection-change="crud.selectionChangeHandler">
-      <el-table-column type="selection" width="55" />
+    <el-table ref="table" v-loading="crud.loading" :data="crud.data" style="width: 100%;">
       <el-table-column prop="name" label="角色名称" />
       <el-table-column prop="createTime" label="创建时间" width="180px" />
+      <el-table-column prop="permissions" label="权限" width="300px">
+        <template slot-scope="scope">
+          {{ scope.row.permissions && scope.row.permissions.length ? scope.row.permissions.map(p => p.name).join(', ') : '-' }}
+        </template>
+      </el-table-column>
       <el-table-column label="操作" width="150px" align="center">
         <template slot-scope="scope">
           <udOperation :data="scope.row" :permission="permission" />
@@ -81,7 +84,7 @@ export default {
       url: '/api/admin/app-rbac/role/list',
       method: 'post',
       crudMethod: { ...appRoleApi },
-      optShow: { add: true, edit: true, del: true, download: false, reset: true }
+      optShow: { add: true, edit: false, del: false, download: false, reset: true }
     })
   },
   mixins: [presenter(), header(), form(defaultForm), crud()],
@@ -89,6 +92,9 @@ export default {
     return {
       permissionList: [],
       permission: {
+        add: [],
+        edit: [],
+        del: []
       },
       rules: {
         name: [
@@ -108,9 +114,25 @@ export default {
       form.permissionIds = []
     },
     [CRUD.HOOK.beforeToEdit](crud, form) {
-      if (!form.permissionIds) {
+      if (form.permissions) {
+        form.permissionIds = form.permissions.map(p => p.id)
+      } else {
         form.permissionIds = []
       }
+    },
+    [CRUD.HOOK.beforeSubmit](crud) {
+      const form = crud.form
+      // 移除 permissionIds 中的空值
+      if (form.permissionIds && form.permissionIds.length) {
+        form.permissionIds = form.permissionIds.filter(id => id !== null && id !== undefined && id !== '')
+      }
+      // 只保留需要的字段
+      Object.keys(form).forEach(key => {
+        if (!['id', 'name', 'permissionIds'].includes(key)) {
+          delete form[key]
+        }
+      })
+      return true
     },
     loadPermissionList() {
       appRoleApi.getPermissionList({ page: 1, pageSize: 999 }).then(res => {

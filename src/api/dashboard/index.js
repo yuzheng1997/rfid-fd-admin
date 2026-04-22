@@ -60,8 +60,8 @@ export function getIndicatorCards() {
 export function scanRecordPage(params) {
   return request({
     url: 'api/admin/scan-record/page',
-    method: 'get',
-    params
+    method: 'post',
+    data: params
   })
 }
 

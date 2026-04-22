@@ -15,13 +15,6 @@ import { distribution } from '@/api/dashboard/index'
 
 const DEFAULT_CENTER = [116.407387, 39.904179]
 const DEFAULT_ZOOM = 11
-const MOCK_POINT_LIST = [
-  { name: '北京朝阳站', lng: 116.473168, lat: 39.993015, count: 126, adcode: '110105' },
-  { name: '北京丰台站', lng: 116.286968, lat: 39.863642, count: 89, adcode: '110106' },
-  { name: '天津西青站', lng: 117.008994, lat: 39.141811, count: 73, adcode: '120111' },
-  { name: '石家庄长安站', lng: 114.54509, lat: 38.048958, count: 64, adcode: '130102' },
-  { name: '济南历下站', lng: 117.120497, lat: 36.651216, count: 97, adcode: '370102' }
-]
 
 export default {
   props: {
@@ -108,16 +101,11 @@ export default {
     async loadMapData() {
       try {
         const res = await distribution()
-        if (res && res.data) {
-          this.pointList = this.normalizeDistributionData(res.data)
+        if (res) {
+          this.pointList = this.normalizeDistributionData(res)
         }
       } catch (error) {
         console.error('获取分布数据失败:', error)
-        this.pointList = MOCK_POINT_LIST
-      }
-
-      if (!this.pointList || !this.pointList.length) {
-        this.pointList = MOCK_POINT_LIST
       }
 
       this.renderMarkers()

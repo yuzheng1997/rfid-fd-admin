@@ -33,7 +33,7 @@
 
         <rrOperation />
       </div>
-      <crudOperation>
+      <crudOperation v-permission="['admin','cylinder:import']">
         <el-upload
           slot="right"
           :action="cylinderUploadApi"
@@ -58,8 +58,10 @@
     <!-- 详情抽屉 -->
 
     <!--表格渲染-->
-    <el-table ref="table" v-loading="crud.loading" :data="crud.data" style="width: 100%;" @selection-change="crud.selectionChangeHandler">
-      <el-table-column type="selection" width="55" />
+    <el-table ref="table" v-loading="crud.loading" :data="crud.data" style="width: 100%;">
+
+      <!-- <el-table-column type="selection" width="55" /> -->
+      <el-table-column prop="qrcode" label="编号" />
       <el-table-column prop="createTime" label="制造时间">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}') }}</span>
@@ -67,6 +69,7 @@
       </el-table-column>
       <!-- <el-table-column prop="model" label="气瓶型号" /> -->
       <el-table-column prop="currentCompanyName" label="所属企业" />
+
       <el-table-column prop="manufacturerName" label="制造商" />
       <el-table-column prop="spec" label="规格" />
       <el-table-column prop="currentStatus" label="当前状态">
@@ -276,7 +279,7 @@ export default {
         message: '导入成功',
         type: 'success'
       })
-      this.refresh()
+      this.crud.toQuery()
     },
     // 钩子：在获取表格数据之前执行，如果有需要可以再此处理查询参数
     [CRUD.HOOK.beforeRefresh]() {

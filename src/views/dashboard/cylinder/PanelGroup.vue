@@ -135,18 +135,18 @@ export default {
     async loadStatistics() {
       try {
         const res = await getIndicatorCards()
-        if (res && res.data) {
+        if (res) {
           this.statistics = {
-            totalCount: res.data.totalCount || 0,
-            inStockCount: res.data.inStockCount || 0,
-            flowingCount: res.data.flowingCount || 0,
-            brokenCount: res.data.brokenCount || 0,
-            expiringCount: res.data.expiringCount || 0,
-            criticalOverdueCount: res.data.criticalOverdueCount || 0,
-            sleepingCount: res.data.sleepingCount || 0,
-            totalFillCount: res.data.totalFillCount || 0,
-            todayFillCount: res.data.todayFillCount || 0,
-            monthFillCount: res.data.monthFillCount || 0
+            totalCount: res.totalCount || 0,
+            inStockCount: res.inStockCount || 0,
+            flowingCount: res.flowingCount || 0,
+            brokenCount: res.brokenCount || 0,
+            expiringCount: res.expiringCount || 0,
+            criticalOverdueCount: res.criticalOverdueCount || 0,
+            sleepingCount: res.sleepingCount || 0,
+            totalFillCount: res.totalFillCount || 0,
+            todayFillCount: res.todayFillCount || 0,
+            monthFillCount: res.monthFillCount || 0
           }
         }
       } catch (error) {

@@ -43,8 +43,8 @@ export default {
         const res = await scanRecordPage({
           pageSize: 5
         })
-        if (res && res.data) {
-          this.list = res.data.records || []
+        if (res) {
+          this.list = res.records || []
         }
       } catch (error) {
         console.error('获取操作记录失败:', error)
