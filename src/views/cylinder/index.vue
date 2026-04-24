@@ -24,8 +24,8 @@
           @change="crud.toQuery"
         >
           <el-option
-            v-for="item in dict.cylinder_status"
-            :key="item.id"
+            v-for="item in cylinderStatusOptions"
+            :key="item.value"
             :label="item.label"
             :value="item.value"
           />
@@ -64,7 +64,7 @@
       <el-table-column prop="qrcode" label="编号" />
       <el-table-column prop="createTime" label="制造时间">
         <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.createTime, '{y}-{m}') }}</span>
+          <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
       <!-- <el-table-column prop="model" label="气瓶型号" /> -->
@@ -74,7 +74,7 @@
       <el-table-column prop="spec" label="规格" />
       <el-table-column prop="currentStatus" label="当前状态">
         <template slot-scope="scope">
-          {{ dict.label.cylinder_status[scope.row.currentStatus] }}
+          {{ getCylinderStatusLabel(scope.row.currentStatus) }}
         </template>
       </el-table-column>
       <el-table-column prop="nextInspectionDate" label="年检日期">
@@ -107,28 +107,16 @@
               </div>
               <el-descriptions :column="2" border>
                 <el-descriptions-item label="制造唯一性编号">{{ detailData.code }}</el-descriptions-item>
-                <el-descriptions-item label="产品序号">{{ detailData.productNumber }}</el-descriptions-item>
-                <el-descriptions-item label="气瓶品种码">{{ detailData.spec }}</el-descriptions-item>
-                <el-descriptions-item label="制造年份+月份">
-                  {{ parseTime(detailData.manufactureDate, '{y}-{m}') }}
+                <el-descriptions-item label="生产日期">
+                  {{ parseTime(detailData.manufactureDate, '{y}-{m}-{d}') }}
                 </el-descriptions-item>
                 <el-descriptions-item label="生产批号">{{ detailData.batchNo }}</el-descriptions-item>
-                <el-descriptions-item label="设计使用年限">{{ detailData.designLife }}</el-descriptions-item>
                 <el-descriptions-item label="气瓶型号">{{ detailData.spec }}</el-descriptions-item>
                 <el-descriptions-item label="公称水容积">{{ detailData.volume }}</el-descriptions-item>
               </el-descriptions>
             </el-card>
 
             <el-card class="box-card" shadow="never" style="margin-bottom: 20px">
-              <div slot="header" class="clearfix">
-                <span>所属用户信息</span>
-              </div>
-              <el-descriptions :column="1" border>
-                <el-descriptions-item label="当前归属">{{ detailData.currentCompanyName || '无' }}</el-descriptions-item>
-              </el-descriptions>
-            </el-card>
-
-            <el-card class="box-card" shadow="never">
               <div slot="header" class="clearfix">
                 <span>年检/报废提醒</span>
               </div>
@@ -150,6 +138,15 @@
               <div v-if="!detailData.nextInspectionDate && !detailData.scrappedDate" style="color: #909399; text-align: center; padding: 10px 0;">
                 暂无提醒信息
               </div>
+            </el-card>
+
+            <el-card class="box-card" shadow="never">
+              <div slot="header" class="clearfix">
+                <span>所属用户</span>
+              </div>
+              <el-descriptions :column="1" border>
+                <el-descriptions-item label="当前归属">{{ detailData.currentCompanyName || '无' }}</el-descriptions-item>
+              </el-descriptions>
             </el-card>
           </el-tab-pane>
 
@@ -212,6 +209,15 @@ const defaultForm = {
   isNormal: true,
   statusDescription: null
 }
+
+const CYLINDER_STATUS_MAP = {
+  PRODUCED: '已建档',
+  IN_STOCK: '在库',
+  TRANSIT: '运输/流转中',
+  WAIT_INSPECT: '待检',
+  SCRAP: '已报废',
+  FAULT: '故障'
+}
 export default {
   name: 'Cylinder',
   components: { pagination, crudOperation, rrOperation },
@@ -251,9 +257,18 @@ export default {
     }
   },
   computed: {
+    cylinderStatusOptions() {
+      return Object.keys(CYLINDER_STATUS_MAP).map(key => ({
+        value: key,
+        label: CYLINDER_STATUS_MAP[key]
+      }))
+    },
     ...mapGetters(['cylinderUploadApi'])
   },
   methods: {
+    getCylinderStatusLabel(status) {
+      return CYLINDER_STATUS_MAP[status] || this.dict.label.cylinder_status[status] || status
+    },
     showDetail(row) {
       this.detailDrawer = true
       this.activeTab = 'basic'
