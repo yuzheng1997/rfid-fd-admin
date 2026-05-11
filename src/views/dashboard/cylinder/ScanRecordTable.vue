@@ -4,10 +4,10 @@
     <div class="clearfix">
       <span style="font-weight: bold; color: #f56c6c;">操作记录列表</span>
     </div>
-    <div class="table-wrapper">
-      <el-table :data="list" pagination size="small" style="width: 100%">
+    <div ref="tableWrapper" class="table-wrapper">
+      <el-table ref="table" v-loading="crud.loading" :data="crud.data" :height="tableHeight" size="small" style="width: 100%">
         <el-table-column prop="cylinderCode" label="气瓶编号" width="140" />
-        <el-table-column prop="scanType" label="操作类型" width="100">
+        <el-table-column prop="scanType" label="操作类型" width="120">
           <template slot-scope="scope">
             <el-tag :type="getScanTypeTagType(scope.row.scanType)" size="mini">
               {{ getScanTypeName(scope.row.scanType) }}
@@ -15,60 +15,83 @@
           </template>
         </el-table-column>
         <el-table-column prop="username" label="操作人" width="100" />
-        <el-table-column prop="scanTime" label="操作时间" width="140">
+        <el-table-column prop="scanTime" label="操作时间" width="160">
           <template slot-scope="scope">
             {{ formatDate(scope.row.scanTime) }}
           </template>
         </el-table-column>
       </el-table>
+      <div ref="paginationWrapper" class="pagination-wrapper">
+        <pagination />
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import { scanRecordPage } from '@/api/dashboard/index'
+import CRUD, { presenter } from '@crud/crud'
+import pagination from '@crud/Pagination'
+
+const SCAN_TYPE_TAG_MAP = {
+  0: 'info',
+  1: 'success',
+  2: 'warning',
+  3: 'danger',
+  4: 'info',
+  5: 'danger'
+}
 
 export default {
+  name: 'ScanRecordTable',
+  components: { pagination },
+  mixins: [presenter()],
   data() {
     return {
-      list: []
+      tableHeight: 240
     }
   },
+  cruds() {
+    return CRUD({
+      title: '操作记录',
+      url: '/api/admin/scan-record/page',
+      method: 'post'
+    })
+  },
   mounted() {
-    this.loadScanRecords()
+    this.$nextTick(() => {
+      this.updateTableHeight()
+      window.addEventListener('resize', this.updateTableHeight)
+    })
+  },
+  beforeDestroy() {
+    window.removeEventListener('resize', this.updateTableHeight)
   },
   methods: {
-    async loadScanRecords() {
-      try {
-        const res = await scanRecordPage({
-          pageSize: 5
-        })
-        if (res) {
-          this.list = res.records || []
-        }
-      } catch (error) {
-        console.error('获取操作记录失败:', error)
-      }
+    updateTableHeight() {
+      this.$nextTick(() => {
+        const tableWrapper = this.$refs.tableWrapper
+        const paginationWrapper = this.$refs.paginationWrapper
+        if (!tableWrapper || !paginationWrapper) return
+        const height = tableWrapper.clientHeight - paginationWrapper.offsetHeight - 8
+        this.tableHeight = height > 120 ? height : 120
+      })
+    },
+    [CRUD.HOOK.afterRefresh]() {
+      this.updateTableHeight()
     },
     getScanTypeName(type) {
       const typeMap = {
-        1: '查询',
-        2: '出库',
-        3: '入库',
-        4: '充装',
-        5: '年检'
+        0: '已建档',
+        1: '在库',
+        2: '运输/流转中',
+        3: '待检',
+        4: '已报废',
+        5: '故障'
       }
       return typeMap[type] || '未知'
     },
     getScanTypeTagType(type) {
-      const typeMap = {
-        1: 'info',
-        2: 'warning',
-        3: 'success',
-        4: 'primary',
-        5: 'danger'
-      }
-      return typeMap[type] || 'info'
+      return SCAN_TYPE_TAG_MAP[type] || 'info'
     },
     formatDate(dateStr) {
       if (!dateStr) return '-'
@@ -95,7 +118,14 @@ export default {
   .table-wrapper {
     flex: 1;
     padding: 16px;
-    overflow: auto;
+    min-height: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .pagination-wrapper {
+    flex-shrink: 0;
+    padding-top: 8px;
   }
 }
 </style>

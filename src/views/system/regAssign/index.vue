@@ -90,16 +90,9 @@
           <span v-else>未知</span>
         </template>
       </el-table-column>
-      <el-table-column label="状态" align="center" prop="enabled">
+      <el-table-column label="绑定账号" align="center">
         <template slot-scope="scope">
-          <el-switch
-            v-if="hasBoundUser(scope.row)"
-            :value="normalizeEnabled(getBoundUser(scope.row).enabled)"
-            :disabled="isCurrentUser(getBoundUser(scope.row))"
-            active-color="#409EFF"
-            inactive-color="#F56C6C"
-            @change="changeEnabled(scope.row, $event)"
-          />
+          {{ getBoundUsername(scope.row) }}
         </template>
       </el-table-column>
       <!-- <el-table-column
@@ -110,6 +103,7 @@
       >
         <template slot-scope="scope">
           <el-button
+            v-if="!hasBoundUser(scope.row)"
             size="mini"
             type="primary"
             icon="el-icon-user"
@@ -126,6 +120,7 @@
       >
         <template slot-scope="scope">
           <el-button
+            v-if="!hasBoundUser(scope.row)"
             size="mini"
             type="primary"
             icon="el-icon-user"
@@ -236,7 +231,6 @@ import rrOperation from '@crud/RR.operation'
 import crudOperation from '@crud/CRUD.operation'
 import pagination from '@crud/Pagination'
 import Treeselect from '@riophae/vue-treeselect'
-import { mapGetters } from 'vuex'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import { LOAD_CHILDREN_OPTIONS } from '@riophae/vue-treeselect'
 
@@ -258,7 +252,6 @@ const defaultAccountForm = {
 export default {
   name: 'RegAssign',
   components: { Treeselect, pagination, crudOperation, rrOperation },
-  dicts: ['user_status'],
   cruds() {
     return CRUD({
       title: '分配账号',
@@ -356,23 +349,56 @@ export default {
       }
     }
   },
-  computed: {
-    ...mapGetters([
-      'user'
-    ])
+  watch: {
+    'crud.data': {
+      handler(data) {
+        this.normalizeCrudRows(data)
+      },
+      immediate: true
+    }
   },
   mounted() {
     // 模拟假数据用于测试，按新的Company接口结构
 
   },
   methods: {
+    normalizeCrudRows(data) {
+      if (!Array.isArray(data)) {
+        return
+      }
+      data.forEach(row => {
+        this.normalizeCompanyRow(row)
+      })
+    },
+    normalizeCompanyRow(row) {
+      if (!row || !row.company) {
+        return row
+      }
+      Object.keys(row.company).forEach(key => {
+        this.$set(row, key, row.company[key])
+      })
+      return row
+    },
+    getCompany(row) {
+      if (!row) {
+        return {}
+      }
+      return row.company || row
+    },
+    getPrimaryBoundAccount(row) {
+      if (!row || !Array.isArray(row.boundAccounts) || row.boundAccounts.length === 0) {
+        return null
+      }
+      return row.boundAccounts[0]
+    },
     keydown(e) {
       if (e.keyCode === 32) {
         e.returnValue = false
       }
     },
     showCreateAccount(row) {
-      this.currentCompany = row
+      this.normalizeCompanyRow(row)
+      this.currentCompany = this.getCompany(row)
       this.resetAccountForm()
       this.accountDialogVisible = true
       this.getDepts()
@@ -515,9 +541,23 @@ export default {
       return null
     },
     getBoundUser(row) {
+      const boundAccount = this.getPrimaryBoundAccount(row)
+      if (boundAccount) {
+        return {
+          ...boundAccount,
+          id: boundAccount.id || boundAccount.userId,
+          userId: boundAccount.userId || boundAccount.id,
+          username: boundAccount.username || boundAccount.userName || boundAccount.accountName
+        }
+      }
       const user = row.user || row.account || row.targetUser || row.sysUser || row.adminUser
       if (user && (user.id || user.userId)) {
-        return user
+        return {
+          ...user,
+          id: user.id || user.userId,
+          userId: user.userId || user.id,
+          username: user.username || user.userName || user.accountName
+        }
       }
       const userId = row.userId || row.targetUserId || row.accountId || row.bindUserId
       if (!userId) {
@@ -526,61 +566,21 @@ export default {
       return {
         ...row,
         id: userId,
-        username: row.username || row.userName || row.accountName,
-        enabled: row.userEnabled !== undefined ? row.userEnabled : row.enabled
+        userId,
+        username: row.username || row.userName || row.accountName
       }
     },
     hasBoundUser(row) {
       return !!this.getBoundUser(row)
     },
-    normalizeEnabled(enabled) {
-      return enabled === true || enabled === 'true'
-    },
-    isCurrentUser(boundUser) {
-      return boundUser && this.user && boundUser.id === this.user.id
-    },
-    getEnabledLabel(val) {
-      const key = String(val)
-      return this.dict && this.dict.label && this.dict.label.user_status
-        ? this.dict.label.user_status[key]
-        : (this.normalizeEnabled(val) ? '激活' : '锁定')
-    },
-    changeEnabled(row, val) {
+    getBoundUsername(row) {
       const boundUser = this.getBoundUser(row)
-      if (!boundUser) {
-        return
-      }
-      const oldValue = boundUser.enabled
-      boundUser.enabled = val
-      this.$confirm('此操作将 "' + this.getEnabledLabel(val) + '" ' + (boundUser.username || '') + ', 是否继续？', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        crudUser.edit(boundUser).then(() => {
-          this.syncBoundUserEnabled(row, val)
-          this.crud.notify(this.getEnabledLabel(val) + '成功', CRUD.NOTIFICATION_TYPE.SUCCESS)
-        }).catch(() => {
-          this.syncBoundUserEnabled(row, oldValue)
-        })
-      }).catch(() => {
-        this.syncBoundUserEnabled(row, oldValue)
-      })
-    },
-    syncBoundUserEnabled(row, val) {
-      const user = row.user || row.account || row.targetUser || row.sysUser || row.adminUser
-      if (user && (user.id || user.userId)) {
-        user.enabled = val
-      }
-      if (row.userEnabled !== undefined) {
-        row.userEnabled = val
-      } else if (row.enabled !== undefined && (row.userId || row.targetUserId || row.accountId || row.bindUserId)) {
-        row.enabled = val
-      }
+      return boundUser ? boundUser.username || '' : ''
     },
     showAssign(row) {
-      this.detailData = row
-      this.assignForm.id = row.id
+      this.normalizeCompanyRow(row)
+      this.detailData = this.getCompany(row)
+      this.assignForm.id = this.detailData.id
       this.assignForm.userId = null
       this.detailDialog = true
     }

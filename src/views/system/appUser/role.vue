@@ -56,11 +56,6 @@
           {{ scope.row.permissions && scope.row.permissions.length ? scope.row.permissions.map(p => p.name).join(', ') : '-' }}
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="150px" align="center">
-        <template slot-scope="scope">
-          <udOperation :data="scope.row" :permission="permission" />
-        </template>
-      </el-table-column>
     </el-table>
     <pagination />
   </div>
@@ -71,13 +66,12 @@ import appRoleApi from '@/api/system/appRole'
 import CRUD, { presenter, header, form, crud } from '@crud/crud'
 import rrOperation from '@crud/RR.operation'
 import crudOperation from '@crud/CRUD.operation'
-import udOperation from '@crud/UD.operation'
 import pagination from '@crud/Pagination'
 
 const defaultForm = { id: null, name: '', permissionIds: [] }
 export default {
   name: 'AppRole',
-  components: { pagination, crudOperation, rrOperation, udOperation },
+  components: { pagination, crudOperation, rrOperation },
   cruds() {
     return CRUD({
       title: '角色',
