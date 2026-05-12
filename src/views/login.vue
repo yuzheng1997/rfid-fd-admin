@@ -1,5 +1,5 @@
 <template>
-  <div class="login" :style="'background-image:url('+ Background +');'">
+  <div class="login" :style="'background-image:url('+ Background +');background-color: #aac0ff;'">
     <el-form ref="loginForm" :model="loginForm" :rules="loginRules" label-position="left" label-width="0px" class="login-form">
       <h3 class="title">
         ELADMIN 后台管理系统
@@ -49,7 +49,7 @@ import { encrypt } from '@/utils/rsaEncrypt'
 import Config from '@/settings'
 import { getCodeImg } from '@/api/login'
 import Cookies from 'js-cookie'
-import Background from '@/assets/images/background.jpeg'
+import Background from '@/assets/images/background.svg'
 export default {
   name: 'Login',
   data() {

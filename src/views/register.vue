@@ -1,6 +1,6 @@
 <template>
-  <div class="register" :style="'background-image:url('+ Background +');'">
-    <el-form ref="registerForm" :model="form" :rules="rules" label-position="right" label-width="130px" class="register-form">
+  <div class="register" :style="'background-image:url('+ Background +');background-color: #aac0ff;'">
+    <el-form ref="registerForm" :model="form" :rules="rules" label-position="right" label-width="150px" class="register-form">
       <h3 class="title">企业注册</h3>
       <el-form-item label="企业类型" prop="type">
         <el-select v-model="form.type" placeholder="请选择企业类型" style="width: 100%" @change="onTypeChange">
@@ -85,7 +85,7 @@
 </template>
 
 <script>
-import Background from '@/assets/images/background.jpeg'
+import Background from '@/assets/images/background.svg'
 import { registerCompany, listAllCompanies } from '@/api/company'
 import { validateIdNo, validatePhoneTwo, validUSCC } from '@/utils/validate'
 import { mapGetters } from 'vuex'
@@ -135,14 +135,22 @@ export default {
         dangerBusinessLicense: '123',
         specialEquipmentLicense: '123'
       },
+      parentOptions: [],
       rules: {
         type: [{ required: true, trigger: 'change', message: '请选择企业类型' }],
         name: [{ required: true, trigger: 'blur', message: '请输入企业名称' }],
-        creditCode: [{ validator: validateCreditCode, trigger: 'blur' }],
+        parentId: [{ required: true, trigger: 'change', message: '\u8bf7\u9009\u62e9\u4e0a\u7ea7\u673a\u6784' }],
+        creditCode: [
+          { required: true, trigger: 'blur', message: '\u8bf7\u8f93\u5165\u7edf\u4e00\u793e\u4f1a\u4fe1\u7528\u4ee3\u7801' },
+          { validator: validateCreditCode, trigger: 'blur' }
+        ],
         legalName: [{ required: true, trigger: 'blur', message: '请输入法定代表人姓名' }],
         legalCode: [{ validator: validateIdNo, trigger: 'blur' }],
         contactName: [{ required: true, trigger: 'blur', message: '请输入联系人姓名' }],
-        contactPhone: [{ validator: validatePhoneTwo, trigger: 'blur' }],
+        contactPhone: [
+          { required: true, trigger: 'blur', message: '\u8bf7\u8f93\u5165\u8054\u7cfb\u7535\u8bdd' },
+          { validator: validatePhoneTwo, trigger: 'blur' }
+        ],
         regionCodes: [{ required: true, trigger: 'change', message: '请选择国家/省/市地址' }],
         address: [{ required: true, trigger: 'blur', message: '请输入详细地址' }]
       },

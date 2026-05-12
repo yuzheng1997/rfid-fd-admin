@@ -191,13 +191,13 @@
                   :permission="permission"
                   :disabled-dle="scope.row.id === user.id"
                 />
-                <el-button
+                <!-- <el-button
                   icon="el-icon-link"
                   type="success"
                   size="mini"
                   style="margin-left: 5px;"
                   @click="showAssignDialog(scope.row)"
-                />
+                /> -->
               </div>
 
             </template>
@@ -207,7 +207,7 @@
         <pagination />
 
         <!-- 分配企业弹窗 -->
-        <el-dialog append-to-body :close-on-click-modal="false" :visible.sync="assignDialogVisible" title="分配企业" width="500px">
+        <!-- <el-dialog append-to-body :close-on-click-modal="false" :visible.sync="assignDialogVisible" title="分配企业" width="500px">
           <el-form size="small" label-width="80px">
             <el-form-item label="当前账号">
               <el-input :value="currentAssignUser.username" disabled />
@@ -232,7 +232,7 @@
             <el-button type="text" @click="assignDialogVisible = false">取消</el-button>
             <el-button :loading="assignLoading" type="primary" @click="submitAssign">确认</el-button>
           </div>
-        </el-dialog>
+        </el-dialog> -->
       </el-col>
     </el-row>
   </div>
