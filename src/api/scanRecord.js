@@ -24,6 +24,14 @@ export function edit(data) {
   })
 }
 
+export function page(data) {
+  return request({
+    url: 'api/admin/log/scan/page',
+    method: 'post',
+    data
+  })
+}
+
 export function download(params) {
   return request({
     url: 'api/scanRecords/download',
@@ -33,4 +41,4 @@ export function download(params) {
   })
 }
 
-export default { add, edit, del, download }
+export default { add, edit, del, page, download }
