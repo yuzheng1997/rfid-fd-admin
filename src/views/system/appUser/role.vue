@@ -56,6 +56,38 @@
           {{ scope.row.permissions && scope.row.permissions.length ? scope.row.permissions.map(p => p.name).join(', ') : '-' }}
         </template>
       </el-table-column>
+      <el-table-column label="操作" width="180px" align="center" fixed="right">
+        <template slot-scope="scope">
+          <el-button
+            type="primary"
+            size="mini"
+            icon="el-icon-edit"
+            @click.stop="crud.toEdit(scope.row)"
+          >
+            编辑
+          </el-button>
+          <el-popover
+            v-model="deletePopoverVisible[scope.row.id]"
+            placement="top"
+            width="180"
+            trigger="manual"
+          >
+            <p>确定删除该角色吗？</p>
+            <div style="text-align: right; margin: 0">
+              <el-button size="mini" type="text" @click="cancelDelete(scope.row)">取消</el-button>
+              <el-button
+                :loading="crud.dataStatus[crud.getDataId(scope.row)].delete === 2"
+                type="primary"
+                size="mini"
+                @click="confirmDelete(scope.row)"
+              >
+                确定
+              </el-button>
+            </div>
+            <el-button slot="reference" type="danger" size="mini" icon="el-icon-delete" @click.stop="showDeletePopover(scope.row)">删除</el-button>
+          </el-popover>
+        </template>
+      </el-table-column>
     </el-table>
     <pagination />
   </div>
@@ -84,6 +116,7 @@ export default {
   mixins: [presenter(), header(), form(defaultForm), crud()],
   data() {
     return {
+      deletePopoverVisible: {},
       permissionList: [],
       permission: {
         add: [],
@@ -99,6 +132,7 @@ export default {
   },
   methods: {
     [CRUD.HOOK.afterRefresh]() {
+      this.deletePopoverVisible = {}
       this.loadPermissionList()
     },
     [CRUD.HOOK.afterMounted]() {
@@ -127,6 +161,26 @@ export default {
         }
       })
       return true
+    },
+    [CRUD.HOOK.afterDelete](crud, data) {
+      if (data && data.id) {
+        this.$delete(this.deletePopoverVisible, data.id)
+      }
+    },
+    showDeletePopover(row) {
+      this.$set(this.deletePopoverVisible, row.id, true)
+      this.crud.toDelete(row)
+    },
+    cancelDelete(row) {
+      this.$set(this.deletePopoverVisible, row.id, false)
+      this.crud.cancelDelete(row)
+    },
+    confirmDelete(row) {
+      this.crud.doDelete(row).then(() => {
+        this.$set(this.deletePopoverVisible, row.id, false)
+      }).catch(() => {
+        this.$set(this.deletePopoverVisible, row.id, false)
+      })
     },
     loadPermissionList() {
       appRoleApi.getPermissionList({ page: 1, pageSize: 999 }).then(res => {
