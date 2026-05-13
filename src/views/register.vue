@@ -178,7 +178,7 @@ export default {
       }
       if (this.form.type === 'RETAILER') {
         return base.concat([
-          { key: 'cylinderFillLicense', label: '气瓶充装许可证', required: true },
+          { key: 'cylinderFillLicense', label: '气瓶加气许可证', required: true },
           { key: 'specialEquipmentLicense', label: '特种设备使用许可证', required: true }
         ])
       }

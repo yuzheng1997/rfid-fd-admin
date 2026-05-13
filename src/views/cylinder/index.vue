@@ -167,6 +167,7 @@
                   :timestamp="activity.eventTime"
                 >
                   <div>{{ `操作员： ${activity.operatorName} ` }}</div>
+                  <div v-if="activity.companyName" style="margin-top: 4px;">{{ `关联企业： ${activity.companyName}` }}</div>
                   <div style="margin-top: 4px;">{{ `操作内容： ${activity.remark}` }}</div>
 
                 </el-timeline-item>
@@ -211,7 +212,7 @@ const defaultForm = {
 }
 
 const CYLINDER_STATUS_MAP = {
-  PRODUCED: '已建档',
+  PRODUCED: '生产入库',
   IN_STOCK: '在库',
   TRANSIT: '运输/流转中',
   WAIT_INSPECT: '待检',

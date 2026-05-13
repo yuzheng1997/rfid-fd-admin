@@ -26,7 +26,7 @@ export function edit(data) {
 
 export function page(data) {
   return request({
-    url: 'api/admin/log/scan/page',
+    url: 'api/admin/log/operation/page',
     method: 'post',
     data
   })

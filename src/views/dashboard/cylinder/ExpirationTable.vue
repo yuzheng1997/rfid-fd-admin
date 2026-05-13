@@ -60,7 +60,7 @@ export default {
         1: '查询',
         2: '出库',
         3: '入库',
-        4: '充装',
+        4: '加气',
         5: '年检'
       }
       return typeMap[type] || '未知'

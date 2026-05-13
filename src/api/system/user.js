@@ -72,5 +72,13 @@ export function bindCompany(targetUserId, targetCompanyId) {
   })
 }
 
-export default { add, edit, del, resetPwd, bindCompany }
+export function bindAccount(data) {
+  return request({
+    url: 'api/admin/bind/account',
+    method: 'post',
+    data
+  })
+}
+
+export default { add, edit, del, resetPwd, bindCompany, bindAccount }
 
