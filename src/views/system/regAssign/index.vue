@@ -40,7 +40,6 @@
         </template>
       </el-table-column>
       <el-table-column
-        v-if="checkPer(['admin', 'user:add'])"
         label="操作"
         width="120px"
         align="center"
