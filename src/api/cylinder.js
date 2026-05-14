@@ -29,6 +29,12 @@ export function cylinderTrace(id) {
     method: 'get'
   })
 }
+export function cylinderFlows(id) {
+  return request({
+    url: `/api/admin/cylinder/flows/${id}`,
+    method: 'get'
+  })
+}
 export function importCylinder(data) {
   return request({
     url: `/api/admin/cylinder/import`,

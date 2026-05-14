@@ -104,7 +104,10 @@
               <el-descriptions-item label="操作时间">
                 {{ detailData.createTime || '-' }}
               </el-descriptions-item>
-              <el-descriptions-item v-if="hasCompanyName(detailData)" label="关联企业">
+              <el-descriptions-item v-if="getFromCompanyName(detailData)" label="来源企业">
+                {{ getFromCompanyName(detailData) }}
+              </el-descriptions-item>
+              <el-descriptions-item v-if="hasCompanyName(detailData)" label="去向企业">
                 {{ getCompanyName(detailData) }}
               </el-descriptions-item>
               <el-descriptions-item label="操作人">
@@ -170,12 +173,17 @@ export default {
         : '-'
     },
     getCompanyName(row) {
-      return row && row.companyInfo && row.companyInfo.name
-        ? row.companyInfo.name
+      return row && row.cylinderInfo && row.cylinderInfo.toCompanyName
+        ? row.cylinderInfo.toCompanyName
         : '-'
     },
+    getFromCompanyName(row) {
+      return row && row.cylinderInfo && row.cylinderInfo.fromCompanyName
+        ? row.cylinderInfo.fromCompanyName
+        : ''
+    },
     hasCompanyName(row) {
-      return !!(row && row.companyInfo && row.companyInfo.name)
+      return !!(row && row.cylinderInfo && row.cylinderInfo.toCompanyName)
     },
     getOperationName(type) {
       const typeMap = {

@@ -164,11 +164,13 @@
                 <el-timeline-item
                   v-for="(activity, index) in timelineList"
                   :key="index"
-                  :timestamp="activity.eventTime"
+                  :timestamp="activity.createTime"
                 >
-                  <div>{{ `操作员： ${activity.operatorName} ` }}</div>
-                  <div v-if="activity.companyName" style="margin-top: 4px;">{{ `关联企业： ${activity.companyName}` }}</div>
-                  <div style="margin-top: 4px;">{{ `操作内容： ${activity.remark}` }}</div>
+                  <div>{{ `操作员： ${activity.operatorName || '-'}` }}</div>
+                  <div v-if="activity.flowTypeName" style="margin-top: 4px;">{{ `流程类型： ${activity.flowTypeName}` }}</div>
+                  <div v-if="activity.fromCompanyName" style="margin-top: 4px;">{{ `来源企业： ${activity.fromCompanyName}` }}</div>
+                  <div v-if="activity.toCompanyName" style="margin-top: 4px;">{{ `去向企业： ${activity.toCompanyName}` }}</div>
+                  <div style="margin-top: 4px;">{{ `操作内容： ${activity.remark || '-'}` }}</div>
 
                 </el-timeline-item>
               </el-timeline>
@@ -177,6 +179,17 @@
               </div>
             </div>
           </el-tab-pane>
+
+          <el-tab-pane label="操作记录" name="flowRecords">
+            <el-table :data="flowRecordList" size="small" border style="width: 100%">
+              <el-table-column prop="flowTypeName" label="流程类型" width="120" />
+              <el-table-column prop="operatorName" label="操作员" width="120" />
+              <el-table-column prop="fromCompanyName" label="来源企业" min-width="160" />
+              <el-table-column prop="toCompanyName" label="去向企业" min-width="160" />
+              <el-table-column prop="createTime" label="流转时间" width="160" />
+              <el-table-column prop="remark" label="备注" min-width="180" show-overflow-tooltip />
+            </el-table>
+          </el-tab-pane>
         </el-tabs>
       </div>
     </el-drawer>
@@ -184,7 +197,7 @@
 </template>
 
 <script>
-import { cylinderTrace } from '@/api/cylinder'
+import { cylinderFlows, cylinderTrace } from '@/api/cylinder'
 import CRUD, { crud, form, header, presenter } from '@crud/crud'
 import crudOperation from '@crud/CRUD.operation'
 import pagination from '@crud/Pagination'
@@ -242,6 +255,7 @@ export default {
       detailData: {},
       historyList: [],
       timelineList: [],
+      flowRecordList: [],
       permission: {
       },
       rules: {
@@ -273,10 +287,17 @@ export default {
     showDetail(row) {
       this.detailDrawer = true
       this.activeTab = 'basic'
+      this.detailData = row
+      this.timelineList = []
+      this.flowRecordList = []
       cylinderTrace(row.id).then(res => {
         this.detailData = res
-        this.errorInfo = res.exception
-        this.timelineList = res.timeline
+        this.errorInfo = res && res.exception
+      })
+      cylinderFlows(row.id).then(res => {
+        const list = Array.isArray(res) ? res : []
+        this.timelineList = list
+        this.flowRecordList = list
       })
 
       // 模拟获取时间线

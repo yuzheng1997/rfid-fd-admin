@@ -6,7 +6,7 @@
           v-model="query.username"
           clearable
           size="small"
-          placeholder="输入账号、邮箱或手机号搜索"
+          placeholder="输入账号搜索"
           style="width: 200px;"
           class="filter-item"
           @keyup.enter.native="crud.toQuery"
