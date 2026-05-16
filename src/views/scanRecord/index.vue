@@ -3,7 +3,7 @@
     <div class="head-container">
       <div v-if="crud.props.searchToggle">
         <el-input
-          v-model="query.cylinderCode"
+          v-model="query.qrcode"
           clearable
           size="small"
           placeholder="气瓶编号"
@@ -208,6 +208,10 @@ export default {
         SCRAP: 'danger'
       }
       return typeMap[type] || 'info'
+    },
+    [CRUD.HOOK.beforeRefresh]() {
+      this.crud.params.targetType = 'CYLINDER'
+      return true
     }
   }
 }
