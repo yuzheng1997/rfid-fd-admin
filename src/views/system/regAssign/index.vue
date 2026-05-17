@@ -6,7 +6,7 @@
           v-model="query.name"
           clearable
           size="small"
-          placeholder="输入机构名搜索"
+          placeholder="输入机构名称搜索"
           style="width: 200px;"
           class="filter-item"
           @keyup.enter.native="crud.toQuery"
@@ -47,7 +47,7 @@
       >
         <template slot-scope="scope">
           <el-button
-            v-if="!hasBoundUser(scope.row)"
+            v-if="canAssignAccount(scope.row)"
             size="mini"
             type="primary"
             icon="el-icon-user"
@@ -97,6 +97,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import { bindAccount } from '@/api/system/user'
 import CRUD, { presenter, header, crud } from '@crud/crud'
 import rrOperation from '@crud/RR.operation'
@@ -135,7 +136,7 @@ export default {
       if (!value) {
         callback(new Error('请输入电话号码'))
       } else if (!isvalidPhone(value)) {
-        callback(new Error('请输入正确的11位手机号'))
+        callback(new Error('请输入正确的11位手机号码'))
       } else {
         callback()
       }
@@ -168,6 +169,15 @@ export default {
         edit: ['admin', 'reg:edit'],
         del: ['admin', 'reg:del']
       }
+    }
+  },
+  computed: {
+    ...mapGetters(['user', 'roles']),
+    currentUserCompanyId() {
+      return this.user && this.user.companyId
+    },
+    isAdmin() {
+      return Array.isArray(this.roles) && (this.roles.includes('admin') || this.roles.includes('ROLE_ADMIN'))
     }
   },
   watch: {
@@ -286,6 +296,15 @@ export default {
     },
     hasBoundUser(row) {
       return !!this.getBoundUser(row)
+    },
+    canAssignAccount(row) {
+      if (this.hasBoundUser(row)) {
+        return false
+      }
+      if (this.isAdmin) {
+        return true
+      }
+      return String(row.parentId || '') === String(this.currentUserCompanyId || '')
     },
     getBoundUsername(row) {
       const boundUser = this.getBoundUser(row)

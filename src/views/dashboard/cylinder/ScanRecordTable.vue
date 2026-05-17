@@ -7,10 +7,10 @@
     <div ref="tableWrapper" class="table-wrapper">
       <el-table ref="table" v-loading="crud.loading" :data="crud.data" :height="tableHeight" size="small" style="width: 100%">
         <el-table-column prop="cylinderCode" label="气瓶编号" width="140" />
-        <el-table-column prop="scanType" label="操作类型" width="120">
+        <el-table-column prop="scanType" label="操作类型" width="100">
           <template slot-scope="scope">
             <el-tag :type="getScanTypeTagType(scope.row.scanType)" size="mini">
-              {{ getScanTypeName(scope.row.scanType) }}
+              {{ scope.row.scanTypeName || '未知' }}
             </el-tag>
           </template>
         </el-table-column>
@@ -78,17 +78,6 @@ export default {
     },
     [CRUD.HOOK.afterRefresh]() {
       this.updateTableHeight()
-    },
-    getScanTypeName(type) {
-      const typeMap = {
-        0: '已建档',
-        1: '在库',
-        2: '运输/流转中',
-        3: '待检',
-        4: '已报废',
-        5: '故障'
-      }
-      return typeMap[type] || '未知'
     },
     getScanTypeTagType(type) {
       return SCAN_TYPE_TAG_MAP[type] || 'info'

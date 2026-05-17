@@ -29,7 +29,7 @@
           <svg-icon icon-class="deploy" class-name="card-panel-icon" />
         </div>
         <div class="card-panel-description">
-          <div class="card-panel-text">出库/流转中</div>
+          <div class="card-panel-text">流转中</div>
           <count-to :start-val="0" :end-val="statistics.flowingCount" :duration="3200" class="card-panel-num" />
         </div>
       </div>
@@ -40,7 +40,7 @@
           <svg-icon icon-class="error" class-name="card-panel-icon" />
         </div>
         <div class="card-panel-description">
-          <div class="card-panel-text">故障/待检</div>
+          <div class="card-panel-text">故障</div>
           <count-to :start-val="0" :end-val="statistics.brokenCount" :duration="3600" class="card-panel-num" />
         </div>
       </div>

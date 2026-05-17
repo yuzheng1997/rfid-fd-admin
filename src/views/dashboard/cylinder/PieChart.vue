@@ -1,5 +1,4 @@
 <template>
-
   <div class="box-card" shadow="never">
     <div class="clearfix">
       <span style="font-weight: bold; color: #f56c6c;">气瓶状态分布</span>
@@ -14,6 +13,14 @@ require('echarts/theme/macarons') // echarts theme
 
 import resize from '../mixins/resize'
 import { statusPie } from '@/api/dashboard/index'
+
+const EMPTY_CHART_DATA = [{
+  name: '暂无数据',
+  value: 1,
+  itemStyle: {
+    color: '#dcdfe6'
+  }
+}]
 
 export default {
   mixins: [resize],
@@ -42,20 +49,18 @@ export default {
   data() {
     return {
       chart: null,
-      chartData: []
+      chartData: EMPTY_CHART_DATA
     }
   },
   mounted() {
-    statusPie().then(res => {
-      if (res) {
-        this.chartData = res
-        this.setOptions(res)
-      }
-    }).catch(() => {
-      console.log('获取数据失败')
-    })
     this.$nextTick(() => {
       this.initChart()
+    })
+    statusPie().then(res => {
+      this.setOptions(res)
+    }).catch(() => {
+      this.setOptions([])
+      console.log('获取数据失败')
     })
   },
   beforeDestroy() {
@@ -71,27 +76,34 @@ export default {
       this.setOptions(this.chartData)
     },
     setOptions(data) {
+      const hasData = Array.isArray(data) && data.length > 0
+      const chartData = hasData ? data : EMPTY_CHART_DATA
+
+      this.chartData = chartData
+      if (!this.chart) {
+        return
+      }
+
       this.chart.setOption({
         tooltip: {
           trigger: 'item',
-          formatter: '{a} <br/>{b} : {c} ({d}%)'
+          formatter: hasData ? '{a} <br/>{b} : {c} ({d}%)' : '{b}'
         },
         legend: {
           left: 'center',
           bottom: '10',
-          data: data.map(i => i.name)
+          data: hasData ? chartData.map(i => i.name) : []
         },
         calculable: true,
-
         series: [
           {
-
             name: this.seriesName,
             type: 'pie',
+            center: ['50%', '42%'],
             radius: [30, 110],
             label: {
               show: true,
-              formatter: '{b}: {c} ({d}%)' // 展示具体数值和百分比，增加可读性
+              formatter: hasData ? '{b}: {c} ({d}%)' : '{b}'
             },
             emphasis: {
               label: {
@@ -105,7 +117,8 @@ export default {
               borderColor: '#fff',
               borderWidth: 2
             },
-            data: data,
+            silent: !hasData,
+            data: chartData,
             animationEasing: 'cubicInOut',
             animationDuration: 2600
           }
