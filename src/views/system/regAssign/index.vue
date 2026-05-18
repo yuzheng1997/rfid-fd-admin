@@ -172,9 +172,9 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['user', 'roles']),
+    ...mapGetters(['companyId', 'user', 'roles']),
     currentUserCompanyId() {
-      return this.user && this.user.companyId
+      return this.companyId
     },
     isAdmin() {
       return Array.isArray(this.roles) && (this.roles.includes('admin') || this.roles.includes('ROLE_ADMIN'))
@@ -301,7 +301,7 @@ export default {
       if (this.hasBoundUser(row)) {
         return false
       }
-
+      console.log(row.parentId, this.currentUserCompanyId)
       return String(row.parentId || '') === String(this.currentUserCompanyId || '')
     },
     getBoundUsername(row) {

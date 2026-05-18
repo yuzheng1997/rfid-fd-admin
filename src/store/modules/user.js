@@ -5,6 +5,7 @@ const user = {
   state: {
     token: getToken(),
     user: {},
+    companyId: '',
     roles: [],
     // 第一次加载菜单时用到
     loadMenus: false
@@ -13,6 +14,9 @@ const user = {
   mutations: {
     SET_TOKEN: (state, token) => {
       state.token = token
+    },
+    SET_COMPANY_ID: (state, id) => {
+      state.companyId = id
     },
     SET_USER: (state, user) => {
       state.user = user
@@ -90,7 +94,8 @@ export const logOut = (commit) => {
 
 export const setUserInfo = (res, commit) => {
   const roles = Array.isArray(res.roles) ? res.roles : []
-
+  console.log(res.companyId)
+  commit('SET_COMPANY_ID', res.companyId)
   // 如果没有任何权限，则赋予一个默认权限，避免请求死循环
   if (roles.length === 0) {
     commit('SET_ROLES', ['ROLE_SYSTEM_DEFAULT'])
