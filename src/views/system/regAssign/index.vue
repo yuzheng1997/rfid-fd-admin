@@ -301,9 +301,7 @@ export default {
       if (this.hasBoundUser(row)) {
         return false
       }
-      if (this.isAdmin) {
-        return true
-      }
+
       return String(row.parentId || '') === String(this.currentUserCompanyId || '')
     },
     getBoundUsername(row) {
