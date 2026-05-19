@@ -1,5 +1,5 @@
 <template>
-  <div :class="className" :style="{height:height,width:width}" />
+  <div :class="className" :style="{ height: height, width: width }" />
 </template>
 
 <script>
@@ -49,10 +49,10 @@ export default {
     initChart() {
       this.chart = echarts.init(this.$el, 'macarons')
       const axisData = ['周一', '周二', '周三', '很长很长的周四', '周五', '周六', '周日']
-      const data = axisData.map(function(item, i) {
+      const data = axisData.map(function (item, i) {
         return Math.round(Math.random() * 1000 * (i + 1))
       })
-      const links = data.map(function(item, i) {
+      const links = data.map(function (item, i) {
         return {
           source: i,
           target: i + 1

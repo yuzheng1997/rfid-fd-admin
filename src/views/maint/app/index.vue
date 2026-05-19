@@ -4,25 +4,40 @@
     <div class="head-container">
       <div v-if="crud.props.searchToggle">
         <!-- 搜索 -->
-        <el-input v-model="query.name" clearable placeholder="输入名称搜索" style="width: 200px" class="filter-item" @keyup.enter.native="crud.toQuery" />
+        <el-input
+          v-model="query.name"
+          clearable
+          placeholder="输入名称搜索"
+          style="width: 200px"
+          class="filter-item"
+          @keyup.enter.native="crud.toQuery"
+        />
         <date-range-picker v-model="query.createTime" class="date-item" />
         <rrOperation />
       </div>
       <crudOperation :permission="permission">
         <el-button
           slot="left"
-          v-permission="['admin','app:add']"
+          v-permission="['admin', 'app:add']"
           :disabled="!currentRow"
           class="filter-item"
           size="mini"
           type="primary"
           icon="el-icon-plus"
           @click="copy"
-        >复制</el-button>
+          >复制</el-button
+        >
       </crudOperation>
     </div>
     <!--表单组件-->
-    <el-dialog append-to-body :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="800px">
+    <el-dialog
+      append-to-body
+      :close-on-click-modal="false"
+      :before-close="crud.cancelCU"
+      :visible.sync="crud.status.cu > 0"
+      :title="crud.status.title"
+      width="800px"
+    >
       <el-form ref="form" :model="form" :rules="rules" size="small" label-width="100px">
         <el-form-item label="应用名称" prop="name">
           <el-input v-model="form.name" style="width: 670px" placeholder="部署后的文件或者目录名称，用于备份" />
@@ -40,7 +55,14 @@
           <el-input v-model="form.backupPath" style="width: 670px" placeholder="例如: /opt/backup" />
         </el-form-item>
         <el-form-item label="部署脚本" prop="deployScript">
-          <el-input v-model="form.deployScript" :rows="3" type="textarea" autosize style="width: 670px" placeholder="" />
+          <el-input
+            v-model="form.deployScript"
+            :rows="3"
+            type="textarea"
+            autosize
+            style="width: 670px"
+            placeholder=""
+          />
         </el-form-item>
         <el-form-item label="启动脚本" prop="startScript">
           <el-input v-model="form.startScript" :rows="3" type="textarea" autosize style="width: 670px" placeholder="" />
@@ -52,7 +74,15 @@
       </div>
     </el-dialog>
     <!--表格渲染-->
-    <el-table ref="table" v-loading="crud.loading" :data="crud.data" highlight-current-row style="width: 100%" @selection-change="crud.selectionChangeHandler" @current-change="handleCurrentChange">
+    <el-table
+      ref="table"
+      v-loading="crud.loading"
+      :data="crud.data"
+      highlight-current-row
+      style="width: 100%"
+      @selection-change="crud.selectionChangeHandler"
+      @current-change="handleCurrentChange"
+    >
       <el-table-column type="selection" width="55" />
       <el-table-column prop="name" label="应用名称" />
       <el-table-column prop="port" label="端口号" />
@@ -60,12 +90,9 @@
       <el-table-column prop="deployPath" label="部署目录" />
       <el-table-column prop="backupPath" label="备份目录" />
       <el-table-column prop="createTime" label="创建日期" />
-      <el-table-column v-if="checkPer(['admin','app:edit','app:del'])" label="操作" width="150px" align="center">
+      <el-table-column v-if="checkPer(['admin', 'app:edit', 'app:del'])" label="操作" width="150px" align="center">
         <template slot-scope="scope">
-          <udOperation
-            :data="scope.row"
-            :permission="permission"
-          />
+          <udOperation :data="scope.row" :permission="permission" />
         </template>
       </el-table-column>
     </el-table>
@@ -83,12 +110,21 @@ import udOperation from '@crud/UD.operation'
 import pagination from '@crud/Pagination'
 import DateRangePicker from '@/components/DateRangePicker'
 
-const defaultForm = { id: null, name: null, port: 8080, uploadPath: '/opt/upload', deployPath: '/opt/app', backupPath: '/opt/backup', startScript: null, deployScript: null }
+const defaultForm = {
+  id: null,
+  name: null,
+  port: 8080,
+  uploadPath: '/opt/upload',
+  deployPath: '/opt/app',
+  backupPath: '/opt/backup',
+  startScript: null,
+  deployScript: null
+}
 export default {
   name: 'App',
   components: { pagination, crudOperation, rrOperation, udOperation, DateRangePicker },
   cruds() {
-    return CRUD({ title: '应用', url: 'api/app', crudMethod: { ...crudApp }})
+    return CRUD({ title: '应用', url: 'api/app', crudMethod: { ...crudApp } })
   },
   mixins: [presenter(), header(), form(defaultForm), crud()],
   data() {
@@ -100,27 +136,13 @@ export default {
         del: ['admin', 'app:del']
       },
       rules: {
-        name: [
-          { required: true, message: '请输入应用名称', trigger: 'blur' }
-        ],
-        port: [
-          { required: true, message: '请输入应用端口', trigger: 'blur', type: 'number' }
-        ],
-        uploadPath: [
-          { required: true, message: '请输入上传目录', trigger: 'blur' }
-        ],
-        deployPath: [
-          { required: true, message: '请输入部署目录', trigger: 'blur' }
-        ],
-        backupPath: [
-          { required: true, message: '请输入备份目录', trigger: 'blur' }
-        ],
-        startScript: [
-          { required: true, message: '请输入启动脚本', trigger: 'blur' }
-        ],
-        deployScript: [
-          { required: true, message: '请输入部署脚本', trigger: 'blur' }
-        ]
+        name: [{ required: true, message: '请输入应用名称', trigger: 'blur' }],
+        port: [{ required: true, message: '请输入应用端口', trigger: 'blur', type: 'number' }],
+        uploadPath: [{ required: true, message: '请输入上传目录', trigger: 'blur' }],
+        deployPath: [{ required: true, message: '请输入部署目录', trigger: 'blur' }],
+        backupPath: [{ required: true, message: '请输入备份目录', trigger: 'blur' }],
+        startScript: [{ required: true, message: '请输入启动脚本', trigger: 'blur' }],
+        deployScript: [{ required: true, message: '请输入部署脚本', trigger: 'blur' }]
       }
     }
   },
@@ -140,5 +162,4 @@ export default {
 }
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

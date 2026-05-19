@@ -1,11 +1,17 @@
-
 <template>
   <div class="box-card" shadow="never">
     <div class="clearfix">
-      <span style="font-weight: bold; color: #f56c6c;">操作记录列表</span>
+      <span style="font-weight: bold; color: #f56c6c">操作记录列表</span>
     </div>
     <div ref="tableWrapper" class="table-wrapper">
-      <el-table ref="table" v-loading="crud.loading" :data="crud.data" :height="tableHeight" size="small" style="width: 100%">
+      <el-table
+        ref="table"
+        v-loading="crud.loading"
+        :data="crud.data"
+        :height="tableHeight"
+        size="small"
+        style="width: 100%"
+      >
         <el-table-column prop="cylinderCode" label="气瓶编号" width="140" />
         <el-table-column prop="scanType" label="操作类型" width="100">
           <template slot-scope="scope">

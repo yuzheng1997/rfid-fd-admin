@@ -4,7 +4,7 @@
       <!-- 1. 关键指标卡片 -->
       <panel-group :is-refueling="isRefueling" />
 
-      <el-row v-if="!isRefueling" style="display: flex;" :gutter="20">
+      <el-row v-if="!isRefueling" style="display: flex" :gutter="20">
         <el-col :xs="24" :sm="24" :lg="16">
           <map-chart height="500px" />
         </el-col>
@@ -15,7 +15,7 @@
         </el-col>
       </el-row>
 
-      <el-row v-if="isRefueling" style="display: flex;height: 350px;" :gutter="20">
+      <el-row v-if="isRefueling" style="display: flex; height: 350px" :gutter="20">
         <el-col :xs="24" :sm="24" :lg="8">
           <div class="chart-wrapper">
             <line-chart />
@@ -32,7 +32,6 @@
           </div>
         </el-col>
       </el-row>
-
     </div>
   </div>
 </template>
@@ -55,8 +54,7 @@ export default {
     MapChart
   },
   data() {
-    return {
-    }
+    return {}
   },
   computed: {
     ...mapGetters(['roles']),
@@ -83,5 +81,4 @@ export default {
     box-shadow: 4px 4px 40px rgba(0, 0, 0, 0.05);
   }
 }
-
 </style>

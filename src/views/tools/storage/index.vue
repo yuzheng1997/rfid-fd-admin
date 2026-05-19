@@ -1,5 +1,5 @@
 <template>
-  <el-tabs v-model="activeName" style="padding-left: 8px;" @tab-click="tabClick">
+  <el-tabs v-model="activeName" style="padding-left: 8px" @tab-click="tabClick">
     <el-tab-pane label="本地存储" name="first">
       <Local ref="local" />
     </el-tab-pane>
@@ -7,7 +7,7 @@
       <template slot="label">
         对象存储
         <el-tooltip content="兼容 Amazon S3 协议的对象存储，暂不提供测试，请自行运行测试" placement="top">
-          <i class="el-icon-question" style="margin-left: 8px; cursor: pointer;" />
+          <i class="el-icon-question" style="margin-left: 8px; cursor: pointer" />
         </el-tooltip>
       </template>
       <S3 ref="s3" />
@@ -42,6 +42,6 @@ export default {
 /* 自定义问号图标样式 */
 .el-icon-question {
   font-size: 16px;
-  color: #409EFF;
+  color: #409eff;
 }
 </style>

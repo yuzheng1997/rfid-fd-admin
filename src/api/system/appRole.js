@@ -33,7 +33,7 @@ export function getPermissionList(data) {
 }
 
 export function del(data) {
-  const roleId = Array.isArray(data) ? data[0] : (data && (data.id || data.roleId) ? data.id || data.roleId : data)
+  const roleId = Array.isArray(data) ? data[0] : data && (data.id || data.roleId) ? data.id || data.roleId : data
   return request({
     url: `api/admin/app-rbac/role/delete/${roleId}`,
     method: 'post'

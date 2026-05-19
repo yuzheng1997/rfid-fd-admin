@@ -1,7 +1,7 @@
 <template>
   <div class="box-card" shadow="never">
     <div class="clearfix">
-      <span style="font-weight: bold; color: #f56c6c;">气瓶状态分布</span>
+      <span style="font-weight: bold; color: #f56c6c">气瓶状态分布</span>
     </div>
     <div ref="chartRef" class="chart-wrapper" />
   </div>
@@ -14,13 +14,15 @@ require('echarts/theme/macarons') // echarts theme
 import resize from '../mixins/resize'
 import { statusPie } from '@/api/dashboard/index'
 
-const EMPTY_CHART_DATA = [{
-  name: '暂无数据',
-  value: 1,
-  itemStyle: {
-    color: '#dcdfe6'
+const EMPTY_CHART_DATA = [
+  {
+    name: '暂无数据',
+    value: 1,
+    itemStyle: {
+      color: '#dcdfe6'
+    }
   }
-}]
+]
 
 export default {
   mixins: [resize],
@@ -56,12 +58,14 @@ export default {
     this.$nextTick(() => {
       this.initChart()
     })
-    statusPie().then(res => {
-      this.setOptions(res)
-    }).catch(() => {
-      this.setOptions([])
-      console.log('获取数据失败')
-    })
+    statusPie()
+      .then(res => {
+        this.setOptions(res)
+      })
+      .catch(() => {
+        this.setOptions([])
+        console.log('获取数据失败')
+      })
   },
   beforeDestroy() {
     if (!this.chart) {

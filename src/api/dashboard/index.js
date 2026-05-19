@@ -64,4 +64,3 @@ export function scanRecordPage(params) {
     data: params
   })
 }
-

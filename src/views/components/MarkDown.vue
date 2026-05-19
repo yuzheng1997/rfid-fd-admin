@@ -25,10 +25,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters([
-      'imagesUploadApi',
-      'baseApi'
-    ])
+    ...mapGetters(['imagesUploadApi', 'baseApi'])
   },
   mounted() {
     const that = this
@@ -49,7 +46,7 @@ export default {
 </script>
 
 <style scoped>
-  .v-note-wrapper.shadow {
-    z-index: 5;
-  }
+.v-note-wrapper.shadow {
+  z-index: 5;
+}
 </style>

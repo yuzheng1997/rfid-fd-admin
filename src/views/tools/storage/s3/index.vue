@@ -1,19 +1,29 @@
 <template>
-  <div class="app-container" style="padding: 8px;">
+  <div class="app-container" style="padding: 8px">
     <!--表单组件-->
     <eForm ref="form" />
     <!-- 工具栏 -->
     <div class="head-container">
       <div v-if="crud.props.searchToggle">
         <!-- 搜索 -->
-        <el-input v-model="query.key" clearable size="small" placeholder="输入文件名称搜索" style="width: 200px;" class="filter-item" @keyup.enter.native="toQuery" />
+        <el-input
+          v-model="query.key"
+          clearable
+          size="small"
+          placeholder="输入文件名称搜索"
+          style="width: 200px"
+          class="filter-item"
+          @keyup.enter.native="toQuery"
+        />
         <date-range-picker v-model="query.createTime" class="date-item" />
         <rrOperation />
       </div>
       <crudOperation :permission="permission">
         <template slot="left">
           <!-- 上传 -->
-          <el-button class="filter-item" size="mini" type="primary" icon="el-icon-upload" @click="dialog = true">上传</el-button>
+          <el-button class="filter-item" size="mini" type="primary" icon="el-icon-upload" @click="dialog = true"
+            >上传</el-button
+          >
         </template>
       </crudOperation>
       <!-- 文件上传 -->
@@ -29,22 +39,40 @@
           multiple
         >
           <el-button size="small" type="primary">点击上传</el-button>
-          <div slot="tip" style="display: block;" class="el-upload__tip">请勿上传违法文件，且文件不超过15M</div>
+          <div slot="tip" style="display: block" class="el-upload__tip">请勿上传违法文件，且文件不超过15M</div>
         </el-upload>
         <div slot="footer" class="dialog-footer">
           <el-button type="primary" @click="doSubmit">确认</el-button>
         </div>
       </el-dialog>
       <!--表格渲染-->
-      <el-table ref="table" v-loading="crud.loading" :data="crud.data" style="width: 100%;" @selection-change="crud.selectionChangeHandler">
+      <el-table
+        ref="table"
+        v-loading="crud.loading"
+        :data="crud.data"
+        style="width: 100%"
+        @selection-change="crud.selectionChangeHandler"
+      >
         <el-table-column type="selection" width="55" />
         <el-table-column prop="fileName" :show-overflow-tooltip="true" label="文件名">
           <template slot-scope="scope">
-            <a href="JavaScript:" class="el-link el-link--primary" target="_blank" type="primary" @click="download(scope.row.id)">{{ scope.row.fileName }}</a>
+            <a
+              href="JavaScript:"
+              class="el-link el-link--primary"
+              target="_blank"
+              type="primary"
+              @click="download(scope.row.id)"
+              >{{ scope.row.fileName }}</a
+            >
           </template>
         </el-table-column>
         <el-table-column prop="fileRealName" width="350" label="真实文件名称" />
-        <el-table-column :show-overflow-tooltip="true" prop="fileType" label="文件类型" @selection-change="crud.selectionChangeHandler" />
+        <el-table-column
+          :show-overflow-tooltip="true"
+          prop="fileType"
+          label="文件类型"
+          @selection-change="crud.selectionChangeHandler"
+        />
         <el-table-column prop="fileSize" label="文件大小" />
         <el-table-column prop="updateTime" label="创建日期" />
       </el-table>
@@ -67,7 +95,7 @@ import DateRangePicker from '@/components/DateRangePicker'
 export default {
   components: { pagination, crudOperation, rrOperation, DateRangePicker },
   cruds() {
-    return CRUD({ title: '对象存储', url: 'api/s3Storage', crudMethod: { ...s3Storage }})
+    return CRUD({ title: '对象存储', url: 'api/s3Storage', crudMethod: { ...s3Storage } })
   },
   mixins: [presenter(), header(), crud()],
   data() {
@@ -75,16 +103,20 @@ export default {
       permission: {
         del: ['admin', 'storage:del']
       },
-      title: '文件', dialog: false,
+      title: '文件',
+      dialog: false,
       icon: 'el-icon-refresh',
-      url: '', headers: { 'Authorization': getToken() },
-      dialogImageUrl: '', dialogVisible: false, fileList: [], files: [], newWin: null
+      url: '',
+      headers: { Authorization: getToken() },
+      dialogImageUrl: '',
+      dialogVisible: false,
+      fileList: [],
+      files: [],
+      newWin: null
     }
   },
   computed: {
-    ...mapGetters([
-      's3UploadApi'
-    ])
+    ...mapGetters(['s3UploadApi'])
   },
   watch: {
     url(newVal, oldVal) {
@@ -137,35 +169,39 @@ export default {
       this.downloadLoading = true
       // 先打开一个空的新窗口，再请求
       this.newWin = window.open()
-      s3Storage.download(id).then(res => {
-        this.downloadLoading = false
-        this.url = res.url
-      }).catch(err => {
-        this.downloadLoading = false
-        console.log(err.response.data.message)
-      })
+      s3Storage
+        .download(id)
+        .then(res => {
+          this.downloadLoading = false
+          this.url = res.url
+        })
+        .catch(err => {
+          this.downloadLoading = false
+          console.log(err.response.data.message)
+        })
     },
     // 同步数据
     synchronize() {
       this.icon = 'el-icon-loading'
-      s3Storage.sync().then(res => {
-        this.icon = 'el-icon-refresh'
-        this.$message({
-          showClose: true,
-          message: '数据同步成功',
-          type: 'success',
-          duration: 1500
+      s3Storage
+        .sync()
+        .then(res => {
+          this.icon = 'el-icon-refresh'
+          this.$message({
+            showClose: true,
+            message: '数据同步成功',
+            type: 'success',
+            duration: 1500
+          })
+          this.crud.toQuery()
         })
-        this.crud.toQuery()
-      }).catch(err => {
-        this.icon = 'el-icon-refresh'
-        console.log(err.response.data.message)
-      })
+        .catch(err => {
+          this.icon = 'el-icon-refresh'
+          console.log(err.response.data.message)
+        })
     }
   }
 }
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

@@ -49,37 +49,17 @@
         type="warning"
         icon="el-icon-download"
         @click="crud.doExport"
-      >导出</el-button>
+        >导出</el-button
+      >
       <!--右侧-->
       <slot name="right" />
     </span>
     <el-button-group class="crud-opts-right">
-      <el-button
-        size="mini"
-        plain
-        type="info"
-        icon="el-icon-search"
-        @click="toggleSearch()"
-      />
-      <el-button
-        size="mini"
-        icon="el-icon-refresh"
-        @click="crud.refresh()"
-      />
-      <el-popover
-        placement="bottom-end"
-        width="150"
-        trigger="click"
-      >
-        <el-button
-          slot="reference"
-          size="mini"
-          icon="el-icon-s-grid"
-        >
-          <i
-            class="fa fa-caret-down"
-            aria-hidden="true"
-          />
+      <el-button size="mini" plain type="info" icon="el-icon-search" @click="toggleSearch()" />
+      <el-button size="mini" icon="el-icon-refresh" @click="crud.refresh()" />
+      <el-popover placement="bottom-end" width="150" trigger="click">
+        <el-button slot="reference" size="mini" icon="el-icon-s-grid">
+          <i class="fa fa-caret-down" aria-hidden="true" />
         </el-button>
         <el-checkbox
           v-model="allColumnsSelected"
@@ -123,15 +103,21 @@ export default {
   props: {
     permission: {
       type: Object,
-      default: () => { return {} }
+      default: () => {
+        return {}
+      }
     },
     hiddenColumns: {
       type: Array,
-      default: () => { return [] }
+      default: () => {
+        return []
+      }
     },
     ignoreColumns: {
       type: Array,
-      default: () => { return [] }
+      default: () => {
+        return []
+      }
     }
   },
   data() {
@@ -194,11 +180,12 @@ export default {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
-      }).then(() => {
-        this.crud.delAllLoading = true
-        this.crud.doDelete(datas)
-      }).catch(() => {
       })
+        .then(() => {
+          this.crud.delAllLoading = true
+          this.crud.doDelete(datas)
+        })
+        .catch(() => {})
     },
     handleCheckAllChange(val) {
       if (val === false) {
@@ -223,7 +210,7 @@ export default {
       })
       if (selectedCount === 0) {
         this.crud.notify('请至少选择一列', CRUD.NOTIFICATION_TYPE.WARNING)
-        this.$nextTick(function() {
+        this.$nextTick(function () {
           item.visible = true
         })
         return
@@ -253,16 +240,16 @@ export default {
 </script>
 
 <style>
-  .crud-opts {
-    padding: 4px 0;
-    display: -webkit-flex;
-    display: flex;
-    align-items: center;
-  }
-  .crud-opts .crud-opts-right {
-    margin-left: auto;
-  }
-  .crud-opts .crud-opts-right span {
-    float: left;
-  }
+.crud-opts {
+  padding: 4px 0;
+  display: -webkit-flex;
+  display: flex;
+  align-items: center;
+}
+.crud-opts .crud-opts-right {
+  margin-left: auto;
+}
+.crud-opts .crud-opts-right span {
+  float: left;
+}
 </style>

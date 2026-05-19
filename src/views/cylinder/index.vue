@@ -9,7 +9,7 @@
           clearable
           size="small"
           placeholder="输入编号搜索"
-          style="width: 200px;"
+          style="width: 200px"
           class="filter-item"
           @keyup.enter.native="crud.toQuery"
         />
@@ -23,17 +23,12 @@
           style="width: 120px"
           @change="crud.toQuery"
         >
-          <el-option
-            v-for="item in cylinderStatusOptions"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-          />
+          <el-option v-for="item in cylinderStatusOptions" :key="item.value" :label="item.label" :value="item.value" />
         </el-select>
 
         <rrOperation />
       </div>
-      <crudOperation v-permission="['admin','cylinder:import']">
+      <crudOperation v-permission="['admin', 'cylinder:import']">
         <el-upload
           slot="right"
           :action="cylinderUploadApi"
@@ -43,23 +38,14 @@
           :on-success="handleSuccess"
           class="upload-demo"
         >
-          <el-button
-
-            class="filter-item"
-            size="mini"
-            type="primary"
-            icon="el-icon-upload2"
-          >导入
-          </el-button>
+          <el-button class="filter-item" size="mini" type="primary" icon="el-icon-upload2">导入 </el-button>
         </el-upload>
-
       </crudOperation>
     </div>
     <!-- 详情抽屉 -->
 
     <!--表格渲染-->
-    <el-table ref="table" v-loading="crud.loading" :data="crud.data" style="width: 100%;">
-
+    <el-table ref="table" v-loading="crud.loading" :data="crud.data" style="width: 100%">
       <!-- <el-table-column type="selection" width="55" /> -->
       <el-table-column prop="qrcode" label="编号" />
       <el-table-column prop="createTime" label="制造时间">
@@ -91,13 +77,7 @@
     <!--分页组件-->
     <pagination />
 
-    <el-drawer
-      title="气瓶详情"
-      :visible.sync="detailDrawer"
-      direction="rtl"
-      size="600px"
-      append-to-body
-    >
+    <el-drawer title="气瓶详情" :visible.sync="detailDrawer" direction="rtl" size="600px" append-to-body>
       <div style="padding: 0 20px">
         <el-tabs v-model="activeTab">
           <el-tab-pane label="基本信息" name="basic">
@@ -135,7 +115,10 @@
                 :closable="false"
                 show-icon
               />
-              <div v-if="!detailData.nextInspectionDate && !detailData.scrappedDate" style="color: #909399; text-align: center; padding: 10px 0;">
+              <div
+                v-if="!detailData.nextInspectionDate && !detailData.scrappedDate"
+                style="color: #909399; text-align: center; padding: 10px 0"
+              >
                 暂无提醒信息
               </div>
             </el-card>
@@ -145,7 +128,9 @@
                 <span>所属用户</span>
               </div>
               <el-descriptions :column="1" border>
-                <el-descriptions-item label="当前归属">{{ detailData.currentCompanyName || '无' }}</el-descriptions-item>
+                <el-descriptions-item label="当前归属">{{
+                  detailData.currentCompanyName || '无'
+                }}</el-descriptions-item>
               </el-descriptions>
             </el-card>
           </el-tab-pane>
@@ -167,14 +152,19 @@
                   :timestamp="activity.createTime"
                 >
                   <div>{{ `操作员： ${activity.operatorName || '-'}` }}</div>
-                  <div v-if="activity.flowTypeName" style="margin-top: 4px;">{{ `流程类型： ${activity.flowTypeName}` }}</div>
-                  <div v-if="activity.fromCompanyName" style="margin-top: 4px;">{{ `来源企业： ${activity.fromCompanyName}` }}</div>
-                  <div v-if="activity.toCompanyName" style="margin-top: 4px;">{{ `去向企业： ${activity.toCompanyName}` }}</div>
-                  <div style="margin-top: 4px;">{{ `操作内容： ${activity.remark || '-'}` }}</div>
-
+                  <div v-if="activity.flowTypeName" style="margin-top: 4px">
+                    {{ `流程类型： ${activity.flowTypeName}` }}
+                  </div>
+                  <div v-if="activity.fromCompanyName" style="margin-top: 4px">
+                    {{ `来源企业： ${activity.fromCompanyName}` }}
+                  </div>
+                  <div v-if="activity.toCompanyName" style="margin-top: 4px">
+                    {{ `去向企业： ${activity.toCompanyName}` }}
+                  </div>
+                  <div style="margin-top: 4px">{{ `操作内容： ${activity.remark || '-'}` }}</div>
                 </el-timeline-item>
               </el-timeline>
-              <div v-if="timelineList.length === 0" style="color: #909399; text-align: center; padding: 20px 0;">
+              <div v-if="timelineList.length === 0" style="color: #909399; text-align: center; padding: 20px 0">
                 暂无状态变更记录
               </div>
             </div>
@@ -256,18 +246,11 @@ export default {
       historyList: [],
       timelineList: [],
       flowRecordList: [],
-      permission: {
-      },
+      permission: {},
       rules: {
-        code: [
-          { required: true, message: '制造唯一性编号不能为空', trigger: 'blur' }
-        ],
-        manufactureDate: [
-          { required: true, message: '制造日期不能为空', trigger: 'blur' }
-        ],
-        model: [
-          { required: true, message: '气瓶型号不能为空', trigger: 'blur' }
-        ]
+        code: [{ required: true, message: '制造唯一性编号不能为空', trigger: 'blur' }],
+        manufactureDate: [{ required: true, message: '制造日期不能为空', trigger: 'blur' }],
+        model: [{ required: true, message: '气瓶型号不能为空', trigger: 'blur' }]
       }
     }
   },
@@ -326,5 +309,4 @@ export default {
 }
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

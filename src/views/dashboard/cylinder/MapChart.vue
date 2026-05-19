@@ -1,7 +1,7 @@
 <template>
   <div class="box-card" shadow="never">
     <div class="clearfix">
-      <span style="font-weight: bold; color: #f56c6c;">气瓶区域分布</span>
+      <span style="font-weight: bold; color: #f56c6c">气瓶区域分布</span>
     </div>
     <div class="map-container" :style="{ height, width }">
       <div ref="mapContainer" class="map-view" />
@@ -112,13 +112,15 @@ export default {
     },
     normalizeDistributionData(sourceData) {
       const list = Array.isArray(sourceData) ? sourceData : []
-      return list.map(item => ({
-        name: item.name || '未命名企业',
-        lng: Number(item.lng),
-        lat: Number(item.lat),
-        count: Number(item.value) || 0,
-        code: item.code || ''
-      })).filter(item => Number.isFinite(item.lng) && Number.isFinite(item.lat))
+      return list
+        .map(item => ({
+          name: item.name || '未命名企业',
+          lng: Number(item.lng),
+          lat: Number(item.lat),
+          count: Number(item.value) || 0,
+          code: item.code || ''
+        }))
+        .filter(item => Number.isFinite(item.lng) && Number.isFinite(item.lat))
     },
     renderMarkers() {
       this.clearMarkers()

@@ -2,7 +2,15 @@
   <div class="app-container">
     <div class="head-container">
       <div v-if="crud.props.searchToggle">
-        <el-input v-model="query.username" clearable size="small" placeholder="输入用户名称查询" style="width: 200px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
+        <el-input
+          v-model="query.username"
+          clearable
+          size="small"
+          placeholder="输入用户名称查询"
+          style="width: 200px"
+          class="filter-item"
+          @keyup.enter.native="crud.toQuery"
+        />
         <rrOperation />
       </div>
       <crudOperation>
@@ -21,7 +29,13 @@
       </crudOperation>
     </div>
     <!--表格渲染-->
-    <el-table ref="table" v-loading="crud.loading" :data="crud.data" style="width: 100%;" @selection-change="crud.selectionChangeHandler">
+    <el-table
+      ref="table"
+      v-loading="crud.loading"
+      :data="crud.data"
+      style="width: 100%"
+      @selection-change="crud.selectionChangeHandler"
+    >
       <el-table-column type="selection" width="55" />
 
       <el-table-column :show-overflow-tooltip="true" prop="uid" label="会话编号" />
@@ -34,16 +48,17 @@
       <el-table-column prop="loginTime" label="登录时间" />
       <el-table-column label="操作" width="70px" fixed="right">
         <template slot-scope="scope">
-          <el-popover
-            :ref="scope.$index"
-            v-permission="['admin']"
-            placement="top"
-            width="180"
-          >
+          <el-popover :ref="scope.$index" v-permission="['admin']" placement="top" width="180">
             <p>确定强制退出该用户吗？</p>
             <div style="text-align: right; margin: 0">
               <el-button size="mini" type="text" @click="$refs[scope.$index].doClose()">取消</el-button>
-              <el-button :loading="delLoading" type="primary" size="mini" @click="delMethod(scope.row.key, scope.$index)">确定</el-button>
+              <el-button
+                :loading="delLoading"
+                type="primary"
+                size="mini"
+                @click="delMethod(scope.row.key, scope.$index)"
+                >确定</el-button
+              >
             </div>
             <el-button slot="reference" size="mini" type="text">强退</el-button>
           </el-popover>
@@ -90,9 +105,11 @@ export default {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
-      }).then(() => {
-        this.delMethod(datas)
-      }).catch(() => {})
+      })
+        .then(() => {
+          this.delMethod(datas)
+        })
+        .catch(() => {})
     },
     // 踢出用户
     delMethod(key, index) {
@@ -103,20 +120,22 @@ export default {
         })
       } else ids.push(key)
       this.delLoading = true
-      del(ids).then(() => {
-        this.delLoading = false
-        if (this.$refs[index]) {
-          this.$refs[index].doClose()
-        }
-        this.crud.dleChangePage(1)
-        this.crud.delSuccessNotify()
-        this.crud.toQuery()
-      }).catch(() => {
-        this.delLoading = false
-        if (this.$refs[index]) {
-          this.$refs[index].doClose()
-        }
-      })
+      del(ids)
+        .then(() => {
+          this.delLoading = false
+          if (this.$refs[index]) {
+            this.$refs[index].doClose()
+          }
+          this.crud.dleChangePage(1)
+          this.crud.delSuccessNotify()
+          this.crud.toQuery()
+        })
+        .catch(() => {
+          this.delLoading = false
+          if (this.$refs[index]) {
+            this.$refs[index].doClose()
+          }
+        })
     }
   }
 }

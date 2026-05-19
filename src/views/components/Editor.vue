@@ -2,10 +2,12 @@
   <div class="app-container">
     <p class="warn-content">
       富文本基于
-      <el-link type="primary" href="https://www.wangeditor.com/v5/getting-started.html" target="_blank">wangEditor</el-link>
+      <el-link type="primary" href="https://www.wangeditor.com/v5/getting-started.html" target="_blank"
+        >wangEditor</el-link
+      >
     </p>
     <el-row :gutter="10">
-      <wang-editor v-model="editorContent" style="height: 500px; overflow-y: hidden;" />
+      <wang-editor v-model="editorContent" style="height: 500px; overflow-y: hidden" />
     </el-row>
   </div>
 </template>
@@ -19,17 +21,12 @@ export default {
   components: { WangEditor },
   data() {
     return {
-      editorContent:
-        `更多帮助请查看官方文档`
+      editorContent: `更多帮助请查看官方文档`
     }
   },
   computed: {
-    ...mapGetters([
-      'imagesUploadApi',
-      'baseApi'
-    ])
+    ...mapGetters(['imagesUploadApi', 'baseApi'])
   },
-  mounted() {
-  }
+  mounted() {}
 }
 </script>

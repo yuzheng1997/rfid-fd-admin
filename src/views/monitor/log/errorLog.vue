@@ -17,7 +17,13 @@
       </crudOperation>
     </div>
     <!--表格渲染-->
-    <el-table ref="table" v-loading="crud.loading" :data="crud.data" style="width: 100%;" @selection-change="crud.selectionChangeHandler">
+    <el-table
+      ref="table"
+      v-loading="crud.loading"
+      :data="crud.data"
+      style="width: 100%"
+      @selection-change="crud.selectionChangeHandler"
+    >
       <el-table-column type="expand">
         <template slot-scope="props">
           <el-form label-position="left" inline class="demo-table-expand">
@@ -66,7 +72,8 @@ export default {
   mixins: [presenter()],
   data() {
     return {
-      errorInfo: '', dialog: false
+      errorInfo: '',
+      dialog: false
     }
   },
   created() {
@@ -90,19 +97,22 @@ export default {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
-      }).then(() => {
-        this.crud.delAllLoading = true
-        delAllError().then(res => {
-          this.crud.delAllLoading = false
-          this.crud.dleChangePage(1)
-          this.crud.delSuccessNotify()
-          this.crud.toQuery()
-        }).catch(err => {
-          this.crud.delAllLoading = false
-          console.log(err.response.data.message)
-        })
-      }).catch(() => {
       })
+        .then(() => {
+          this.crud.delAllLoading = true
+          delAllError()
+            .then(res => {
+              this.crud.delAllLoading = false
+              this.crud.dleChangePage(1)
+              this.crud.delSuccessNotify()
+              this.crud.toQuery()
+            })
+            .catch(err => {
+              this.crud.delAllLoading = false
+              console.log(err.response.data.message)
+            })
+        })
+        .catch(() => {})
     }
   }
 }

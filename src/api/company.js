@@ -17,4 +17,3 @@ export function listAllCompanies(data) {
 }
 
 export default { registerCompany, listAllCompanies }
-

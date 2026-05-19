@@ -1,7 +1,7 @@
 <template>
   <div class="box-card" shadow="never">
     <div class="clearfix">
-      <span style="font-weight: bold; color: #f56c6c;">加气趋势</span>
+      <span style="font-weight: bold; color: #f56c6c">加气趋势</span>
     </div>
     <div ref="chartRef" class="chart-wrapper" />
   </div>
@@ -37,19 +37,21 @@ export default {
   },
 
   mounted() {
-    trendFill().then(res => {
-      if (res) {
-        const data = []
-        const xData = []
-        ;(res).forEach(element => {
-          data.push(element.value)
-          xData.push(element.date)
-        })
-        this.setOptions({ data, xData })
-      }
-    }).catch(() => {
-      console.log('获取数据失败')
-    })
+    trendFill()
+      .then(res => {
+        if (res) {
+          const data = []
+          const xData = []
+          res.forEach(element => {
+            data.push(element.value)
+            xData.push(element.date)
+          })
+          this.setOptions({ data, xData })
+        }
+      })
+      .catch(() => {
+        console.log('获取数据失败')
+      })
     this.$nextTick(() => {
       this.initChart()
     })
@@ -73,7 +75,6 @@ export default {
         xAxis: {
           type: 'category',
           data: xData
-
         },
         grid: {
           left: 10,
@@ -91,22 +92,25 @@ export default {
             show: false
           }
         },
-        series: [{
-          name: '充气数', itemStyle: {
-            normal: {
-              color: '#FF005A',
-              lineStyle: {
+        series: [
+          {
+            name: '充气数',
+            itemStyle: {
+              normal: {
                 color: '#FF005A',
-                width: 2
+                lineStyle: {
+                  color: '#FF005A',
+                  width: 2
+                }
               }
-            }
-          },
-          smooth: true,
-          type: 'line',
-          data: data,
-          animationDuration: 2800,
-          animationEasing: 'cubicInOut'
-        }]
+            },
+            smooth: true,
+            type: 'line',
+            data: data,
+            animationDuration: 2800,
+            animationEasing: 'cubicInOut'
+          }
+        ]
       })
     }
   }

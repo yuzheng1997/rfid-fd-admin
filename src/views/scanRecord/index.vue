@@ -7,7 +7,7 @@
           clearable
           size="small"
           placeholder="气瓶编号"
-          style="width: 160px;"
+          style="width: 160px"
           class="filter-item"
           @keyup.enter.native="crud.toQuery"
         />
@@ -52,12 +52,7 @@
       <crudOperation :permission="permission" />
     </div>
 
-    <el-table
-      ref="table"
-      v-loading="crud.loading"
-      :data="crud.data"
-      style="width: 100%;"
-    >
+    <el-table ref="table" v-loading="crud.loading" :data="crud.data" style="width: 100%">
       <!-- <el-table-column prop="id" label="ID" width="80" /> -->
       <el-table-column label="气瓶编号" min-width="160">
         <template slot-scope="scope">
@@ -84,13 +79,7 @@
 
     <pagination />
 
-    <el-drawer
-      title="扫描记录详情"
-      :visible.sync="detailDrawer"
-      direction="rtl"
-      size="650px"
-      append-to-body
-    >
+    <el-drawer title="扫描记录详情" :visible.sync="detailDrawer" direction="rtl" size="650px" append-to-body>
       <div style="padding: 20px">
         <el-tabs v-model="activeTab">
           <el-tab-pane label="单次操作详情" name="basic">
@@ -168,19 +157,13 @@ export default {
       this.activeTab = 'basic'
     },
     getCylinderCode(row) {
-      return row && row.cylinderInfo && row.cylinderInfo.code
-        ? row.cylinderInfo.code
-        : '-'
+      return row && row.cylinderInfo && row.cylinderInfo.code ? row.cylinderInfo.code : '-'
     },
     getCompanyName(row) {
-      return row && row.cylinderInfo && row.cylinderInfo.toCompanyName
-        ? row.cylinderInfo.toCompanyName
-        : '-'
+      return row && row.cylinderInfo && row.cylinderInfo.toCompanyName ? row.cylinderInfo.toCompanyName : '-'
     },
     getFromCompanyName(row) {
-      return row && row.cylinderInfo && row.cylinderInfo.fromCompanyName
-        ? row.cylinderInfo.fromCompanyName
-        : ''
+      return row && row.cylinderInfo && row.cylinderInfo.fromCompanyName ? row.cylinderInfo.fromCompanyName : ''
     },
     hasCompanyName(row) {
       return !!(row && row.cylinderInfo && row.cylinderInfo.toCompanyName)

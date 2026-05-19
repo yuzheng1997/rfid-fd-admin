@@ -7,7 +7,7 @@
           clearable
           size="small"
           placeholder="输入角色名称搜索"
-          style="width: 200px;"
+          style="width: 200px"
           class="filter-item"
           @keyup.enter.native="crud.toQuery"
         />
@@ -25,15 +25,10 @@
     >
       <el-form ref="form" :model="form" :rules="rules" size="small" label-width="80px">
         <el-form-item label="角色名称" prop="name">
-          <el-input v-model="form.name" style="width: 480px;" placeholder="请输入角色名称" />
+          <el-input v-model="form.name" style="width: 480px" placeholder="请输入角色名称" />
         </el-form-item>
         <el-form-item label="权限配置">
-          <el-select
-            v-model="form.permissionIds"
-            multiple
-            placeholder="请选择权限"
-            style="width: 480px;"
-          >
+          <el-select v-model="form.permissionIds" multiple placeholder="请选择权限" style="width: 480px">
             <el-option
               v-for="item in permissionList"
               :key="item.id"
@@ -48,30 +43,24 @@
         <el-button :loading="crud.status.cu === 2" type="primary" @click="crud.submitCU">确认</el-button>
       </div>
     </el-dialog>
-    <el-table ref="table" v-loading="crud.loading" :data="crud.data" style="width: 100%;">
+    <el-table ref="table" v-loading="crud.loading" :data="crud.data" style="width: 100%">
       <el-table-column prop="name" label="角色名称" />
       <el-table-column prop="createTime" label="创建时间" width="180px" />
       <el-table-column prop="permissions" label="权限" width="300px">
         <template slot-scope="scope">
-          {{ scope.row.permissions && scope.row.permissions.length ? scope.row.permissions.map(p => p.name).join(', ') : '-' }}
+          {{
+            scope.row.permissions && scope.row.permissions.length
+              ? scope.row.permissions.map(p => p.name).join(', ')
+              : '-'
+          }}
         </template>
       </el-table-column>
       <el-table-column label="操作" width="180px" align="center" fixed="right">
         <template slot-scope="scope">
-          <el-button
-            type="primary"
-            size="mini"
-            icon="el-icon-edit"
-            @click.stop="crud.toEdit(scope.row)"
-          >
+          <el-button type="primary" size="mini" icon="el-icon-edit" @click.stop="crud.toEdit(scope.row)">
             编辑
           </el-button>
-          <el-popover
-            v-model="deletePopoverVisible[scope.row.id]"
-            placement="top"
-            width="180"
-            trigger="manual"
-          >
+          <el-popover v-model="deletePopoverVisible[scope.row.id]" placement="top" width="180" trigger="manual">
             <p>确定删除该角色吗？</p>
             <div style="text-align: right; margin: 0">
               <el-button size="mini" type="text" @click="cancelDelete(scope.row)">取消</el-button>
@@ -84,7 +73,14 @@
                 确定
               </el-button>
             </div>
-            <el-button slot="reference" type="danger" size="mini" icon="el-icon-delete" @click.stop="showDeletePopover(scope.row)">删除</el-button>
+            <el-button
+              slot="reference"
+              type="danger"
+              size="mini"
+              icon="el-icon-delete"
+              @click.stop="showDeletePopover(scope.row)"
+              >删除</el-button
+            >
           </el-popover>
         </template>
       </el-table-column>
@@ -124,9 +120,7 @@ export default {
         del: []
       },
       rules: {
-        name: [
-          { required: true, message: '请输入角色名称', trigger: 'blur' }
-        ]
+        name: [{ required: true, message: '请输入角色名称', trigger: 'blur' }]
       }
     }
   },
@@ -176,11 +170,14 @@ export default {
       this.crud.cancelDelete(row)
     },
     confirmDelete(row) {
-      this.crud.doDelete(row).then(() => {
-        this.$set(this.deletePopoverVisible, row.id, false)
-      }).catch(() => {
-        this.$set(this.deletePopoverVisible, row.id, false)
-      })
+      this.crud
+        .doDelete(row)
+        .then(() => {
+          this.$set(this.deletePopoverVisible, row.id, false)
+        })
+        .catch(() => {
+          this.$set(this.deletePopoverVisible, row.id, false)
+        })
     },
     loadPermissionList() {
       appRoleApi.getPermissionList({ page: 1, pageSize: 999 }).then(res => {
@@ -191,5 +188,4 @@ export default {
 }
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

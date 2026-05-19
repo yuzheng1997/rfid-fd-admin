@@ -81,4 +81,3 @@ export function bindAccount(data) {
 }
 
 export default { add, edit, del, resetPwd, bindCompany, bindAccount }
-

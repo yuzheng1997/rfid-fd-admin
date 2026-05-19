@@ -1,8 +1,7 @@
-
 <template>
   <div class="box-card" shadow="never">
     <div class="clearfix">
-      <span style="font-weight: bold; color: #f56c6c;">操作记录列表</span>
+      <span style="font-weight: bold; color: #f56c6c">操作记录列表</span>
     </div>
     <div class="table-wrapper">
       <el-table :data="list" pagination size="small" style="width: 100%">

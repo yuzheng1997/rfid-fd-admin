@@ -32,5 +32,11 @@ export function fetchLocationSimplified() {
   return fetchGeoJSON('/map/location-simplified.json')
 }
 
-export default { fetchGeoJSON, getChinaGeoJSON, getProvinceGeoJSON, getCityCountiesGeoJSON, fetchLocation, fetchLocationSimplified }
-
+export default {
+  fetchGeoJSON,
+  getChinaGeoJSON,
+  getProvinceGeoJSON,
+  getCityCountiesGeoJSON,
+  fetchLocation,
+  fetchLocationSimplified
+}

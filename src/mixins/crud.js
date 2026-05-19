@@ -1,11 +1,5 @@
-import {
-  initData,
-  download
-} from '@/api/data'
-import {
-  parseTime,
-  downloadFile
-} from '@/utils'
+import { initData, download } from '@/api/data'
+import { parseTime, downloadFile } from '@/utils'
 
 export default {
   data() {
@@ -49,37 +43,41 @@ export default {
     parseTime,
     downloadFile,
     async init() {
-      if (!await this.beforeInit()) {
+      if (!(await this.beforeInit())) {
         return
       }
       return new Promise((resolve, reject) => {
         this.loading = true
         // 请求数据
-        initData(this.url, this.getQueryParams()).then(data => {
-          this.total = data.totalElements
-          this.data = data.content
-          // time 毫秒后显示表格
-          setTimeout(() => {
+        initData(this.url, this.getQueryParams())
+          .then(data => {
+            this.total = data.totalElements
+            this.data = data.content
+            // time 毫秒后显示表格
+            setTimeout(() => {
+              this.loading = false
+            }, this.time)
+            resolve(data)
+          })
+          .catch(err => {
             this.loading = false
-          }, this.time)
-          resolve(data)
-        }).catch(err => {
-          this.loading = false
-          reject(err)
-        })
+            reject(err)
+          })
       })
     },
     beforeInit() {
       return true
     },
-    getQueryParams: function() {
+    getQueryParams: function () {
       // 清除参数无值的情况
-      Object.keys(this.query).length !== 0 && Object.keys(this.query).forEach(item => {
-        if (this.query[item] === null || this.query[item] === '') this.query[item] = undefined
-      })
-      Object.keys(this.params).length !== 0 && Object.keys(this.params).forEach(item => {
-        if (this.params[item] === null || this.params[item] === '') this.params[item] = undefined
-      })
+      Object.keys(this.query).length !== 0 &&
+        Object.keys(this.query).forEach(item => {
+          if (this.query[item] === null || this.query[item] === '') this.query[item] = undefined
+        })
+      Object.keys(this.params).length !== 0 &&
+        Object.keys(this.params).forEach(item => {
+          if (this.params[item] === null || this.params[item] === '') this.params[item] = undefined
+        })
       return {
         page: this.page,
         size: this.size,
@@ -164,17 +162,20 @@ export default {
         return
       }
       this.delLoading = true
-      this.crudMethod.del(id).then(() => {
-        this.delLoading = false
-        this.$refs[id].doClose()
-        this.dleChangePage()
-        this.delSuccessNotify()
-        this.afterDelMethod()
-        this.init()
-      }).catch(() => {
-        this.delLoading = false
-        this.$refs[id].doClose()
-      })
+      this.crudMethod
+        .del(id)
+        .then(() => {
+          this.delLoading = false
+          this.$refs[id].doClose()
+          this.dleChangePage()
+          this.delSuccessNotify()
+          this.afterDelMethod()
+          this.init()
+        })
+        .catch(() => {
+          this.delLoading = false
+          this.$refs[id].doClose()
+        })
     },
     afterDelMethod() {},
     /**
@@ -199,18 +200,21 @@ export default {
       for (let i = 0; i < data.length; i++) {
         ids.push(data[i].id)
       }
-      this.crudMethod.delAll(ids).then(() => {
-        this.delAllLoading = false
-        this.dleChangePage(ids.length)
-        this.init()
-        this.$notify({
-          title: '删除成功',
-          type: 'success',
-          duration: 2500
+      this.crudMethod
+        .delAll(ids)
+        .then(() => {
+          this.delAllLoading = false
+          this.dleChangePage(ids.length)
+          this.init()
+          this.$notify({
+            title: '删除成功',
+            type: 'success',
+            duration: 2500
+          })
         })
-      }).catch(() => {
-        this.delAllLoading = false
-      })
+        .catch(() => {
+          this.delAllLoading = false
+        })
     },
     /**
      * 显示新增弹窗前可以调用该方法
@@ -245,16 +249,19 @@ export default {
      * 新增方法
      */
     addMethod() {
-      this.crudMethod.add(this.form).then(() => {
-        this.addSuccessNotify()
-        this.loading = false
-        this.afterAddMethod()
-        this.cancel()
-        this.init()
-      }).catch(() => {
-        this.loading = false
-        this.afterAddErrorMethod()
-      })
+      this.crudMethod
+        .add(this.form)
+        .then(() => {
+          this.addSuccessNotify()
+          this.loading = false
+          this.afterAddMethod()
+          this.cancel()
+          this.init()
+        })
+        .catch(() => {
+          this.loading = false
+          this.afterAddErrorMethod()
+        })
     },
     /**
      * 新增后可以调用该方法
@@ -268,15 +275,18 @@ export default {
      * 通用的编辑方法
      */
     editMethod() {
-      this.crudMethod.edit(this.form).then(() => {
-        this.editSuccessNotify()
-        this.loading = false
-        this.afterEditMethod()
-        this.cancel()
-        this.init()
-      }).catch(() => {
-        this.loading = false
-      })
+      this.crudMethod
+        .edit(this.form)
+        .then(() => {
+          this.editSuccessNotify()
+          this.loading = false
+          this.afterEditMethod()
+          this.cancel()
+          this.init()
+        })
+        .catch(() => {
+          this.loading = false
+        })
     },
     /**
      * 编辑后可以调用该方法
@@ -296,7 +306,7 @@ export default {
         return
       }
       if (this.$refs['form']) {
-        this.$refs['form'].validate((valid) => {
+        this.$refs['form'].validate(valid => {
           if (valid) {
             this.loading = true
             if (this.isAdd) {
@@ -328,12 +338,14 @@ export default {
     downloadMethod() {
       this.beforeInit()
       this.downloadLoading = true
-      download(this.url + '/download', this.params).then(result => {
-        this.downloadFile(result, this.title + '数据', 'xlsx')
-        this.downloadLoading = false
-      }).catch(() => {
-        this.downloadLoading = false
-      })
+      download(this.url + '/download', this.params)
+        .then(result => {
+          this.downloadFile(result, this.title + '数据', 'xlsx')
+          this.downloadLoading = false
+        })
+        .catch(() => {
+          this.downloadLoading = false
+        })
     }
   }
 }

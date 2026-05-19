@@ -15,7 +15,9 @@
           将文件拖到此处，或
           <em>点击上传</em>
         </div>
-        <div slot="tip" class="el-upload__tip">多个应用上传文件名称为all.zip,数据库更新脚本扩展名为.sql,上传成功后系统自动部署系统。</div>
+        <div slot="tip" class="el-upload__tip">
+          多个应用上传文件名称为all.zip,数据库更新脚本扩展名为.sql,上传成功后系统自动部署系统。
+        </div>
       </el-upload>
     </el-form>
     <div slot="footer" class="dialog-footer">
@@ -147,7 +149,7 @@ export default {
       })
     },
     initWebSocket() {
-      const wsUri = (process.env.VUE_APP_WS_API === '/' ? '/' : (process.env.VUE_APP_WS_API + '/')) + 'webSocket/deploy'
+      const wsUri = (process.env.VUE_APP_WS_API === '/' ? '/' : process.env.VUE_APP_WS_API + '/') + 'webSocket/deploy'
       this.websock = new WebSocket(wsUri)
       this.websock.onerror = this.webSocketOnError
       this.websock.onmessage = this.webSocketOnMessage
@@ -186,5 +188,4 @@ export default {
 }
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

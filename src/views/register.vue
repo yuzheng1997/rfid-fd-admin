@@ -1,6 +1,13 @@
 <template>
-  <div class="register" :style="'background-image:url('+ Background +');background-color: #aac0ff;'">
-    <el-form ref="registerForm" :model="form" :rules="rules" label-position="right" label-width="150px" class="register-form">
+  <div class="register" :style="'background-image:url(' + Background + ');background-color: #aac0ff;'">
+    <el-form
+      ref="registerForm"
+      :model="form"
+      :rules="rules"
+      label-position="right"
+      label-width="150px"
+      class="register-form"
+    >
       <h3 class="title">企业注册</h3>
       <el-form-item label="企业类型" prop="type">
         <el-select v-model="form.type" placeholder="请选择企业类型" style="width: 100%" @change="onTypeChange">
@@ -71,8 +78,8 @@
         </el-upload>
       </el-form-item> -->
 
-      <el-form-item style="width:100%; margin-top: 10px;">
-        <el-button :loading="loading" size="medium" type="primary" style="width:100%;" @click.native.prevent="submit">
+      <el-form-item style="width: 100%; margin-top: 10px">
+        <el-button :loading="loading" size="medium" type="primary" style="width: 100%" @click.native.prevent="submit">
           <span v-if="!loading">提 交 注 册</span>
           <span v-else>提 交 中...</span>
         </el-button>
@@ -141,7 +148,11 @@ export default {
         name: [{ required: true, trigger: 'blur', message: '请输入企业名称' }],
         parentId: [{ required: true, trigger: 'change', message: '\u8bf7\u9009\u62e9\u4e0a\u7ea7\u673a\u6784' }],
         creditCode: [
-          { required: true, trigger: 'blur', message: '\u8bf7\u8f93\u5165\u7edf\u4e00\u793e\u4f1a\u4fe1\u7528\u4ee3\u7801' },
+          {
+            required: true,
+            trigger: 'blur',
+            message: '\u8bf7\u8f93\u5165\u7edf\u4e00\u793e\u4f1a\u4fe1\u7528\u4ee3\u7801'
+          },
           { validator: validateCreditCode, trigger: 'blur' }
         ],
         legalName: [{ required: true, trigger: 'blur', message: '请输入法定代表人姓名' }],
@@ -280,7 +291,9 @@ export default {
         for (let attempt = 1; attempt <= 3; attempt++) {
           try {
             const addr = attempt === 1 ? fullAddress : shortAddress
-            const res = await fetch(`https://restapi.amap.com/v3/geocode/geo?address=${encodeURIComponent(addr)}&key=${key}`)
+            const res = await fetch(
+              `https://restapi.amap.com/v3/geocode/geo?address=${encodeURIComponent(addr)}&key=${key}`
+            )
             const data = await res.json()
             if (data.geocodes && data.geocodes.length > 0) {
               const location = data.geocodes[0].location.split(',')
@@ -302,7 +315,9 @@ export default {
           type: this.form.type,
           name: this.form.name,
           parentId: this.form.parentId,
-          creditCode: String(this.form.creditCode || '').trim().toUpperCase(),
+          creditCode: String(this.form.creditCode || '')
+            .trim()
+            .toUpperCase(),
           legalName: this.form.legalName,
           legalCode: this.form.legalCode,
           contactName: this.form.contactName,

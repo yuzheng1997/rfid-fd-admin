@@ -8,7 +8,12 @@
         </div>
         <div class="card-panel-description">
           <div class="card-panel-text">气瓶总数</div>
-          <count-to :start-val="0" :end-val="statistics.totalCount" :duration="2600" class="card-panel-num" />
+          <count-to
+            :start-val="0"
+            :end-val="`${statistics.totalCount + statistics.subordinateCylinderCount}`"
+            :duration="2600"
+            class="card-panel-num"
+          />
         </div>
       </div>
     </el-col>
@@ -108,6 +113,7 @@ export default {
         brokenCount: 0,
         expiringCount: 0,
         criticalOverdueCount: 0,
+        subordinateCylinderCount: 0,
         sleepingCount: 0,
         totalFillCount: 0,
         todayFillCount: 0,
@@ -143,6 +149,7 @@ export default {
             brokenCount: res.brokenCount || 0,
             expiringCount: res.expiringCount || 0,
             criticalOverdueCount: res.criticalOverdueCount || 0,
+            subordinateCylinderCount: res.subordinateCylinderCount || 0,
             sleepingCount: res.sleepingCount || 0,
             totalFillCount: res.totalFillCount || 0,
             todayFillCount: res.todayFillCount || 0,
@@ -174,8 +181,8 @@ export default {
     overflow: hidden;
     color: #666;
     background: #fff;
-    box-shadow: 4px 4px 40px rgba(0, 0, 0, .05);
-    border-color: rgba(0, 0, 0, .05);
+    box-shadow: 4px 4px 40px rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.05);
 
     &:hover {
       .card-panel-icon-wrapper {
@@ -215,14 +222,30 @@ export default {
       }
     }
 
-    .icon-total { color: #40c9c6; }
-    .icon-in-stock { color: #36a3f7; }
-    .icon-outbound { color: #f4516c; }
-    .icon-fault { color: #34bfa3; }
-    .icon-expiration { color: #e6a23c; }
-    .icon-history { color: #7266ba; }
-    .icon-today { color: #f6d365; }
-    .icon-month { color: #23b7e5; }
+    .icon-total {
+      color: #40c9c6;
+    }
+    .icon-in-stock {
+      color: #36a3f7;
+    }
+    .icon-outbound {
+      color: #f4516c;
+    }
+    .icon-fault {
+      color: #34bfa3;
+    }
+    .icon-expiration {
+      color: #e6a23c;
+    }
+    .icon-history {
+      color: #7266ba;
+    }
+    .icon-today {
+      color: #f6d365;
+    }
+    .icon-month {
+      color: #23b7e5;
+    }
 
     .card-panel-icon-wrapper {
       float: left;
@@ -257,7 +280,7 @@ export default {
   }
 }
 
-@media (max-width:550px) {
+@media (max-width: 550px) {
   .card-panel-description {
     display: none;
   }

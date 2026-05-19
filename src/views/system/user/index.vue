@@ -34,7 +34,7 @@
               clearable
               size="small"
               placeholder="输入名称或者邮箱搜索"
-              style="width: 200px;"
+              style="width: 200px"
               class="filter-item"
               @keyup.enter.native="crud.toQuery"
             />
@@ -60,19 +60,26 @@
           <crudOperation show="" :permission="permission">
             <el-button
               slot="right"
-              v-permission="['admin','user:add']"
+              v-permission="['admin', 'user:add']"
               :disabled="crud.selections.length === 0"
               class="filter-item"
               size="mini"
               type="primary"
               icon="el-icon-refresh-left"
               @click="resetPwd(crud.selections)"
-            >重置密码
+              >重置密码
             </el-button>
           </crudOperation>
         </div>
         <!--表单渲染-->
-        <el-dialog append-to-body :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="555px">
+        <el-dialog
+          append-to-body
+          :close-on-click-modal="false"
+          :before-close="crud.cancelCU"
+          :visible.sync="crud.status.cu > 0"
+          :title="crud.status.title"
+          width="555px"
+        >
           <el-form ref="form" :inline="true" :model="form" :rules="rules" size="small" label-width="66px">
             <el-form-item label="用户名" prop="username">
               <el-input v-model="form.username" @keydown.native="keydown($event)" />
@@ -104,12 +111,7 @@
                 @remove-tag="deleteTag"
                 @change="changeJob"
               >
-                <el-option
-                  v-for="item in jobs"
-                  :key="item.name"
-                  :label="item.name"
-                  :value="item.id"
-                />
+                <el-option v-for="item in jobs" :key="item.name" :label="item.name" :value="item.id" />
               </el-select>
             </el-form-item>
             <el-form-item label="性别">
@@ -120,14 +122,12 @@
             </el-form-item>
             <el-form-item label="状态">
               <el-radio-group v-model="form.enabled" :disabled="form.id === user.id">
-                <el-radio
-                  v-for="item in dict.user_status"
-                  :key="item.id"
-                  :label="item.value"
-                >{{ item.label }}</el-radio>
+                <el-radio v-for="item in dict.user_status" :key="item.id" :label="item.value">{{
+                  item.label
+                }}</el-radio>
               </el-radio-group>
             </el-form-item>
-            <el-form-item style="margin-bottom: 0;" label="角色" prop="roleDatas" class="is-required">
+            <el-form-item style="margin-bottom: 0" label="角色" prop="roleDatas" class="is-required">
               <el-select
                 v-model="roleDatas"
                 :disabled="form.id === user.id"
@@ -153,7 +153,13 @@
           </div>
         </el-dialog>
         <!--表格渲染-->
-        <el-table ref="table" v-loading="crud.loading" :data="crud.data" style="width: 100%;" @selection-change="crud.selectionChangeHandler">
+        <el-table
+          ref="table"
+          v-loading="crud.loading"
+          :data="crud.data"
+          style="width: 100%"
+          @selection-change="crud.selectionChangeHandler"
+        >
           <el-table-column :selectable="checkboxT" type="selection" width="55" />
           <el-table-column :show-overflow-tooltip="true" prop="username" label="用户名" />
           <el-table-column :show-overflow-tooltip="true" prop="nickName" label="昵称" />
@@ -178,19 +184,15 @@
           </el-table-column>
           <el-table-column :show-overflow-tooltip="true" prop="createTime" width="135" label="创建日期" />
           <el-table-column
-            v-if="checkPer(['admin','user:edit','user:del'])"
+            v-if="checkPer(['admin', 'user:edit', 'user:del'])"
             label="操作"
             width="170"
             align="center"
             fixed="right"
           >
             <template slot-scope="scope">
-              <div style="display: flex; justify-content: center;">
-                <udOperation
-                  :data="scope.row"
-                  :permission="permission"
-                  :disabled-dle="scope.row.id === user.id"
-                />
+              <div style="display: flex; justify-content: center">
+                <udOperation :data="scope.row" :permission="permission" :disabled-dle="scope.row.id === user.id" />
                 <!-- <el-button
                   icon="el-icon-link"
                   type="success"
@@ -199,7 +201,6 @@
                   @click="showAssignDialog(scope.row)"
                 /> -->
               </div>
-
             </template>
           </el-table-column>
         </el-table>
@@ -257,12 +258,23 @@ import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import { LOAD_CHILDREN_OPTIONS } from '@riophae/vue-treeselect'
 let userRoles = []
 let userJobs = []
-const defaultForm = { id: null, username: null, nickName: null, gender: '男', email: null, enabled: 'false', roles: [], jobs: [], dept: { id: null }, phone: null }
+const defaultForm = {
+  id: null,
+  username: null,
+  nickName: null,
+  gender: '男',
+  email: null,
+  enabled: 'false',
+  roles: [],
+  jobs: [],
+  dept: { id: null },
+  phone: null
+}
 export default {
   name: 'User',
   components: { Treeselect, crudOperation, rrOperation, udOperation, pagination, DateRangePicker },
   cruds() {
-    return CRUD({ title: '用户', url: 'api/users', crudMethod: { ...crudUser }})
+    return CRUD({ title: '用户', url: 'api/users', crudMethod: { ...crudUser } })
   },
   mixins: [presenter(), header(), form(defaultForm), crud()],
   // 数据字典
@@ -280,8 +292,14 @@ export default {
     }
     return {
       height: document.documentElement.clientHeight - 180 + 'px;',
-      deptName: '', depts: [], deptDatas: [], jobs: [], level: 3, roles: [],
-      jobDatas: [], roleDatas: [], // 多选时使用
+      deptName: '',
+      depts: [],
+      deptDatas: [],
+      jobs: [],
+      level: 3,
+      roles: [],
+      jobDatas: [],
+      roleDatas: [], // 多选时使用
       defaultProps: { children: 'children', label: 'name', isLeaf: 'leaf' },
       permission: {
         add: ['admin', 'user:add'],
@@ -305,12 +323,8 @@ export default {
           { required: true, message: '请输入邮箱地址', trigger: 'blur' },
           { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur' }
         ],
-        phone: [
-          { required: true, trigger: 'blur', validator: validPhone }
-        ],
-        'dept.id': [
-          { required: true, message: '部门不能为空', trigger: 'blur' }
-        ],
+        phone: [{ required: true, trigger: 'blur', validator: validPhone }],
+        'dept.id': [{ required: true, message: '部门不能为空', trigger: 'blur' }],
         jobDatas: [
           {
             validator: (rule, value, callback) => {
@@ -347,14 +361,12 @@ export default {
     }
   },
   computed: {
-    ...mapGetters([
-      'user'
-    ])
+    ...mapGetters(['user'])
   },
   created() {
     this.crud.msg.add = '新增成功，默认密码：123456'
   },
-  mounted: function() {
+  mounted: function () {
     const that = this
     window.onresize = function temp() {
       that.height = document.documentElement.clientHeight - 180 + 'px;'
@@ -369,20 +381,20 @@ export default {
     },
     changeRole(value) {
       userRoles = []
-      value.forEach(function(data, index) {
+      value.forEach(function (data, index) {
         const role = { id: data }
         userRoles.push(role)
       })
     },
     changeJob(value) {
       userJobs = []
-      value.forEach(function(data, index) {
+      value.forEach(function (data, index) {
         const job = { id: data }
         userJobs.push(job)
       })
     },
     deleteTag(value) {
-      userRoles.forEach(function(data, index) {
+      userRoles.forEach(function (data, index) {
         if (data.id === value) {
           userRoles.splice(index, value)
         }
@@ -413,12 +425,12 @@ export default {
       userRoles = []
       userJobs = []
       const _this = this
-      form.roles.forEach(function(role, index) {
+      form.roles.forEach(function (role, index) {
         _this.roleDatas.push(role.id)
         const rol = { id: role.id }
         userRoles.push(rol)
       })
-      form.jobs.forEach(function(job, index) {
+      form.jobs.forEach(function (job, index) {
         _this.jobDatas.push(job.id)
         const data = { id: job.id }
         userJobs.push(data)
@@ -453,7 +465,7 @@ export default {
     },
     getDepts() {
       getDepts({ enabled: true }).then(res => {
-        this.depts = res.content.map(function(obj) {
+        this.depts = res.content.map(function (obj) {
           if (obj.hasChildren) {
             obj.children = null
           }
@@ -482,7 +494,7 @@ export default {
     loadDepts({ action, parentNode, callback }) {
       if (action === LOAD_CHILDREN_OPTIONS) {
         getDepts({ enabled: true, pid: parentNode.id }).then(res => {
-          parentNode.children = res.content.map(function(obj) {
+          parentNode.children = res.content.map(function (obj) {
             if (obj.hasChildren) {
               obj.children = null
             }
@@ -509,33 +521,44 @@ export default {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
-      }).then(() => {
-        crudUser.edit(data).then(res => {
-          this.crud.notify(this.dict.label.user_status[val] + '成功', CRUD.NOTIFICATION_TYPE.SUCCESS)
-        }).catch(() => {
+      })
+        .then(() => {
+          crudUser
+            .edit(data)
+            .then(res => {
+              this.crud.notify(this.dict.label.user_status[val] + '成功', CRUD.NOTIFICATION_TYPE.SUCCESS)
+            })
+            .catch(() => {
+              data.enabled = !data.enabled
+            })
+        })
+        .catch(() => {
           data.enabled = !data.enabled
         })
-      }).catch(() => {
-        data.enabled = !data.enabled
-      })
     },
     // 获取弹窗内角色数据
     getRoles() {
-      getAll().then(res => {
-        this.roles = res
-      }).catch(() => { })
+      getAll()
+        .then(res => {
+          this.roles = res
+        })
+        .catch(() => {})
     },
     // 获取弹窗内岗位数据
     getJobs() {
-      getAllJob().then(res => {
-        this.jobs = res.content
-      }).catch(() => { })
+      getAllJob()
+        .then(res => {
+          this.jobs = res.content
+        })
+        .catch(() => {})
     },
     // 获取权限级别
     getRoleLevel() {
-      getLevel().then(res => {
-        this.level = res.level
-      }).catch(() => { })
+      getLevel()
+        .then(res => {
+          this.level = res.level
+        })
+        .catch(() => {})
     },
     checkboxT(row, rowIndex) {
       return row.id !== this.user.id
@@ -545,17 +568,21 @@ export default {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
-      }).then(() => {
-        const ids = []
-        datas.forEach(val => {
-          ids.push(val.id)
-        })
-        console.log(ids)
-        crudUser.resetPwd(ids).then(() => {
-          this.crud.notify('重置成功, 用户新密码:123456', CRUD.NOTIFICATION_TYPE.SUCCESS)
-        }).catch(() => {})
-      }).catch(() => {
       })
+        .then(() => {
+          const ids = []
+          datas.forEach(val => {
+            ids.push(val.id)
+          })
+          console.log(ids)
+          crudUser
+            .resetPwd(ids)
+            .then(() => {
+              this.crud.notify('重置成功, 用户新密码:123456', CRUD.NOTIFICATION_TYPE.SUCCESS)
+            })
+            .catch(() => {})
+        })
+        .catch(() => {})
     },
     // 打开分配企业弹窗
     showAssignDialog(row) {
@@ -566,13 +593,15 @@ export default {
     },
     // 获取企业列表
     fetchCompanies() {
-      listAllCompanies().then(res => {
-        // 如果后端返回结构带 content/data，视情况调整，这里假设直接返回数组或在 data/content 中
-        const list = res.data || res.content || res
-        this.companyOptions = Array.isArray(list) ? list : []
-      }).catch(() => {
-        this.companyOptions = []
-      })
+      listAllCompanies()
+        .then(res => {
+          // 如果后端返回结构带 content/data，视情况调整，这里假设直接返回数组或在 data/content 中
+          const list = res.data || res.content || res
+          this.companyOptions = Array.isArray(list) ? list : []
+        })
+        .catch(() => {
+          this.companyOptions = []
+        })
     },
     // 提交分配企业绑定
     submitAssign() {
@@ -581,22 +610,26 @@ export default {
         return
       }
       this.assignLoading = true
-      bindCompany(this.currentAssignUser.id, this.selectedCompanyId).then(() => {
-        this.crud.notify('绑定企业成功', CRUD.NOTIFICATION_TYPE.SUCCESS)
-        this.assignDialogVisible = false
-        this.assignLoading = false
-        this.crud.refresh()
-      }).catch(() => {
-        this.assignLoading = false
-      })
+      bindCompany(this.currentAssignUser.id, this.selectedCompanyId)
+        .then(() => {
+          this.crud.notify('绑定企业成功', CRUD.NOTIFICATION_TYPE.SUCCESS)
+          this.assignDialogVisible = false
+          this.assignLoading = false
+          this.crud.refresh()
+        })
+        .catch(() => {
+          this.assignLoading = false
+        })
     }
   }
 }
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
-  ::v-deep .vue-treeselect__control,::v-deep .vue-treeselect__placeholder,::v-deep .vue-treeselect__single-value {
-    height: 30px;
-    line-height: 30px;
-  }
+::v-deep .vue-treeselect__control,
+::v-deep .vue-treeselect__placeholder,
+::v-deep .vue-treeselect__single-value {
+  height: 30px;
+  line-height: 30px;
+}
 </style>

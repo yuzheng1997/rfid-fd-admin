@@ -7,7 +7,7 @@
           clearable
           size="small"
           placeholder="输入机构名称搜索"
-          style="width: 200px;"
+          style="width: 200px"
           class="filter-item"
           @keyup.enter.native="crud.toQuery"
         />
@@ -16,12 +16,7 @@
       <crudOperation :permission="permission" />
     </div>
 
-    <el-table
-      ref="table"
-      v-loading="crud.loading"
-      :data="crud.data"
-      style="width: 100%;"
-    >
+    <el-table ref="table" v-loading="crud.loading" :data="crud.data" style="width: 100%">
       <el-table-column prop="name" label="企业名称" />
       <el-table-column prop="creditCode" label="统一社会信用代码" />
       <el-table-column prop="address" label="详细地址" />
@@ -39,12 +34,7 @@
           {{ getBoundUsername(scope.row) }}
         </template>
       </el-table-column>
-      <el-table-column
-        label="操作"
-        width="120px"
-        align="center"
-        fixed="right"
-      >
+      <el-table-column label="操作" width="120px" align="center" fixed="right">
         <template slot-scope="scope">
           <el-button
             v-if="canAssignAccount(scope.row)"
@@ -52,7 +42,8 @@
             type="primary"
             icon="el-icon-user"
             @click="showCreateAccount(scope.row)"
-          >账号授权</el-button>
+            >账号授权</el-button
+          >
         </template>
       </el-table-column>
     </el-table>
@@ -67,14 +58,7 @@
       width="555px"
       @close="resetAccountForm"
     >
-      <el-form
-        ref="accountForm"
-        :inline="true"
-        :model="accountForm"
-        :rules="rules"
-        size="small"
-        label-width="66px"
-      >
+      <el-form ref="accountForm" :inline="true" :model="accountForm" :rules="rules" size="small" label-width="66px">
         <el-form-item label="用户名" prop="username">
           <el-input v-model="accountForm.username" @keydown.native="keydown($event)" />
         </el-form-item>
@@ -160,9 +144,7 @@ export default {
           { required: true, message: '请输入邮箱地址', trigger: 'blur' },
           { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur' }
         ],
-        phone: [
-          { required: true, trigger: 'blur', validator: validPhone }
-        ]
+        phone: [{ required: true, trigger: 'blur', validator: validPhone }]
       },
       permission: {
         add: ['admin', 'reg:add'],
@@ -251,17 +233,19 @@ export default {
           username: this.accountForm.username
         }
         this.accountLoading = true
-        bindAccount(form).then(() => {
-          this.crud.notify('账号创建并绑定企业成功', CRUD.NOTIFICATION_TYPE.SUCCESS)
-          this.accountDialogVisible = false
-          this.accountLoading = false
-          this.crud.refresh()
-        }).catch(err => {
-          this.accountLoading = false
-          if (err && err.message) {
-            this.$message.error(err.message)
-          }
-        })
+        bindAccount(form)
+          .then(() => {
+            this.crud.notify('账号创建并绑定企业成功', CRUD.NOTIFICATION_TYPE.SUCCESS)
+            this.accountDialogVisible = false
+            this.accountLoading = false
+            this.crud.refresh()
+          })
+          .catch(err => {
+            this.accountLoading = false
+            if (err && err.message) {
+              this.$message.error(err.message)
+            }
+          })
       })
     },
     getBoundUser(row) {

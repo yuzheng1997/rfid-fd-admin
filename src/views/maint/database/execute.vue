@@ -49,8 +49,7 @@ export default {
   computed: {
     ...mapGetters(['databaseUploadApi'])
   },
-  mounted() {
-  },
+  mounted() {},
   methods: {
     cancel() {
       this.dialog = false
@@ -82,5 +81,4 @@ export default {
 }
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>
