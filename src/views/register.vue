@@ -39,12 +39,16 @@
       <el-form-item label="法定代表人证件号" prop="legalCode">
         <el-input v-model="form.legalCode" placeholder="请输入法定代表人证件号" />
       </el-form-item> -->
-      <el-form-item label="联系电话" prop="contactPhone">
-        <el-input v-model="form.contactPhone" placeholder="请输入联系电话" />
-      </el-form-item>
       <el-form-item label="联系人姓名" prop="contactName">
         <el-input v-model="form.contactName" placeholder="请输入联系人姓名" />
       </el-form-item>
+      <el-form-item label="联系电话" prop="contactPhone">
+        <el-input v-model="form.contactPhone" placeholder="请输入联系电话" />
+      </el-form-item>
+      <el-form-item label="邮箱" prop="email">
+        <el-input v-model="form.email" placeholder="请输入邮箱" />
+      </el-form-item>
+
       <el-form-item label="国家/省/市地址" prop="regionCodes">
         <region-cascader
           ref="regionCascader"
@@ -128,6 +132,7 @@ export default {
         legalCode: '',
         contactName: '',
         contactPhone: '',
+        email: '',
         regionCodes: [],
         country: '',
         countryValue: '',
@@ -157,6 +162,10 @@ export default {
         ],
         legalName: [{ required: true, trigger: 'blur', message: '请输入法定代表人姓名' }],
         legalCode: [{ validator: validateIdNo, trigger: 'blur' }],
+        email: [
+          { required: true, trigger: 'blur', message: '请输入邮箱' },
+          { type: 'email', trigger: 'blur', message: '邮箱格式不正确' }
+        ],
         contactName: [{ required: true, trigger: 'blur', message: '请输入联系人姓名' }],
         contactPhone: [
           { required: true, trigger: 'blur', message: '\u8bf7\u8f93\u5165\u8054\u7cfb\u7535\u8bdd' },
@@ -322,6 +331,7 @@ export default {
           legalCode: this.form.legalCode,
           contactName: this.form.contactName,
           contactPhone: this.form.contactPhone,
+          email: this.form.email,
           country: this.form.country,
           countryValue: this.form.countryValue,
           state: this.form.state,

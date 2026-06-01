@@ -17,10 +17,10 @@
     </div>
 
     <el-table ref="table" v-loading="crud.loading" :data="crud.data" style="width: 100%">
-      <el-table-column prop="name" label="企业名称" />
-      <el-table-column prop="creditCode" label="统一社会信用代码" />
-      <el-table-column prop="address" label="详细地址" />
-      <el-table-column label="企业类型">
+      <el-table-column prop="name" label="企业名称" min-width="160" />
+      <el-table-column prop="creditCode" label="统一社会信用代码" min-width="180" />
+      <el-table-column prop="address" label="详细地址" min-width="200" />
+      <el-table-column label="企业类型" min-width="100">
         <template slot-scope="scope">
           <span v-if="scope.row.typeDealer === 1">分销商</span>
           <span v-else-if="scope.row.typeFiller === 1">加气站</span>
@@ -29,7 +29,10 @@
           <span v-else>未知</span>
         </template>
       </el-table-column>
-      <el-table-column label="绑定账号" align="center">
+      <el-table-column prop="contact" label="联系人" min-width="100" />
+      <el-table-column prop="phone" label="手机号" min-width="130" />
+      <el-table-column prop="email" label="邮箱" min-width="180" />
+      <el-table-column label="绑定账号" align="center" min-width="120">
         <template slot-scope="scope">
           {{ getBoundUsername(scope.row) }}
         </template>
@@ -209,6 +212,8 @@ export default {
       this.normalizeCompanyRow(row)
       this.currentCompany = this.getCompany(row)
       this.resetAccountForm()
+      this.accountForm.email = row.email || ''
+      this.accountForm.phone = row.phone || ''
       this.accountDialogVisible = true
     },
     resetAccountForm() {
@@ -296,4 +301,8 @@ export default {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.app-container .el-table {
+  overflow-x: auto;
+}
+</style>
