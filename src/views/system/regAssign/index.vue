@@ -63,16 +63,16 @@
     >
       <el-form ref="accountForm" :inline="true" :model="accountForm" :rules="rules" size="small" label-width="66px">
         <el-form-item label="用户名" prop="username">
-          <el-input v-model="accountForm.username" @keydown.native="keydown($event)" />
+          <el-input v-model="accountForm.username" placeholder="请输入用户名" @keydown.native="keydown($event)" />
         </el-form-item>
         <el-form-item label="电话" prop="phone">
-          <el-input v-model.number="accountForm.phone" />
+          <el-input v-model.number="accountForm.phone" placeholder="请输入11位手机号码" />
         </el-form-item>
         <el-form-item label="昵称" prop="nickName">
-          <el-input v-model="accountForm.nickName" @keydown.native="keydown($event)" />
+          <el-input v-model="accountForm.nickName" placeholder="请输入用户昵称" @keydown.native="keydown($event)" />
         </el-form-item>
         <el-form-item label="邮箱" prop="email">
-          <el-input v-model="accountForm.email" />
+          <el-input v-model="accountForm.email" placeholder="请输入邮箱地址" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
